@@ -1,0 +1,37 @@
+{
+  "name": "declarative-discord",
+  "version": "1.0.0",
+  "description": "A suite of tools for declarative management of Discord permissions.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon",
+    "dev": "concurrently --kill-others --prefix [{name}] --names tsc,cleaner,node \"npm:build:watch\" \"npm:cleaner\" \"npm:start\"",
+    "cleaner": "ts-cleaner --dist dist --watch",
+    "build": "tsc",
+    "build:watch": "tsc --watch --preserveWatchOutput",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "author": "nullishamy",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/rest": "^1.7.0",
+    "@types/deep-diff": "^1.0.2",
+    "@types/node": "^18.11.19",
+    "deep-diff": "^1.0.2",
+    "discord-api-types": "^0.37.37",
+    "node-fetch": "^3.3.1",
+    "typescript": "^4.9.5",
+    "wasmoon": "^1.14.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.4.0",
+    "concurrently": "^7.6.0",
+    "jest": "^29.4.1",
+    "nodemon": "^2.0.20",
+    "ts-cleaner": "^1.0.5",
+    "ts-jest": "^29.0.5",
+    "tsconfig": "^7.0.0"
+  }
+}

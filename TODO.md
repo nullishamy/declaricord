@@ -7,3 +7,6 @@
 - Lua utils for making configs
 - Tests
 - General cleanup
+- Implement effective inheritance
+- Report invalid / contradictory configs
+- Config linting for bad practice

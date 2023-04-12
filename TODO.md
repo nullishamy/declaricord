@@ -5,7 +5,7 @@
 - Better typing on Lua tables (schema validation)
 - Increase stability, add checks and balances
 - Lua utils for making configs
-- Tests
+- Tests with CI
 - General cleanup
 - Implement effective inheritance
 - Report invalid / contradictory configs

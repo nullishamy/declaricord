@@ -10,3 +10,5 @@
 [ ] Implement effective permission inheritance
 [ ] Report invalid / contradictory configs
 [ ] Config linting for bad practice
+[ ] Better diff visualisation (object view)
+[ ] Code fix suggestions for diff errors

@@ -12,3 +12,4 @@
 [ ] Config linting for bad practice
 [ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
+[ ] Flake devshell with direnv

@@ -1,5 +1,5 @@
 import deepDiff, { Diff } from "deep-diff";
-import { GuildConfiguration } from "src/frontend/data.js";
+import { GuildConfiguration } from "../util/schema.js";
 
 export function diffConfigurations(localConfig: GuildConfiguration, discordConfig: GuildConfiguration) {
     return deepDiff(localConfig, discordConfig)

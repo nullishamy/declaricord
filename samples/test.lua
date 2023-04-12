@@ -5,7 +5,6 @@ return {
             id = "1094801227080015882",
             comment = "global",
             topic = "nothing",
-            position = 0,
 
             nsfw = false,
             slowmode = 0,
@@ -22,7 +21,6 @@ return {
 
         self.global_role {
             id = "1008440520168702053",
-            position = 0,
             comment = "@everyone",
 
             create_instant_invite = true,
@@ -46,7 +44,6 @@ return {
 
         self.global_role {
             id = "1008440690470047805",
-            position = 1,
             comment = "mods",
 
             send_messages = true,
@@ -75,13 +72,11 @@ return {
         self.category {
             id = "1008440520672038993",
             comment = "Text channels",
-            position = 0,
             channels = {
                 self.channel.text {
                     id = "1008440520672038995",
                     comment = "general",
                     topic = "nothing",
-                    position = 1,
 
                     nsfw = false,
                     slowmode = 0,
@@ -113,12 +108,10 @@ return {
         self.category {
             id = "1008440520672038994",
             comment = "Voice channels",
-            position = 1,
             channels = {
                 self.channel.voice {
                     id = "1008440520672038996",
                     comment = "General",
-                    position = 0,
                     nsfw = false,
                     user_limit = 0,
                     bitrate = 64000

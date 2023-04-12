@@ -23,7 +23,8 @@
     "discord-api-types": "^0.37.37",
     "node-fetch": "^3.3.1",
     "typescript": "^4.9.5",
-    "wasmoon": "^1.14.1"
+    "wasmoon": "^1.14.1",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",

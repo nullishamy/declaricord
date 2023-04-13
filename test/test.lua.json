@@ -1,0 +1,189 @@
+{
+  "guildId": "1008440520168702053",
+  "globalChannels": [
+    {
+      "id": "1094801227080015882",
+      "comment": "global",
+      "type": "text",
+      "options": {
+        "nsfw": false,
+        "topic": "nothing",
+        "slowmode": 0
+      },
+      "overrides": []
+    },
+    {
+      "id": "1095430872712347779",
+      "comment": "globalvoice",
+      "type": "voice",
+      "options": {
+        "nsfw": false,
+        "bitrate": 64000,
+        "userLimit": 0
+      },
+      "overrides": []
+    }
+  ],
+  "globalRoles": [
+    {
+      "id": "1008440520168702053",
+      "comment": "@everyone",
+      "permissions": {
+        "create_instant_invite": true,
+        "kick_members": false,
+        "ban_members": false,
+        "administrator": false,
+        "manage_channels": false,
+        "manage_guild": false,
+        "add_reactions": false,
+        "view_audit_log": false,
+        "priority_speaker": false,
+        "stream": true,
+        "view_channel": true,
+        "send_messages": true,
+        "send_tts_messages": false,
+        "manage_messages": false,
+        "embed_links": true,
+        "attach_files": true,
+        "read_message_history": true,
+        "mention_everyone": false,
+        "use_external_emojis": true,
+        "view_guild_insights": false,
+        "connect": true,
+        "speak": true,
+        "mute_members": false,
+        "deafen_members": false,
+        "move_members": false,
+        "use_vad": true,
+        "change_nickname": true,
+        "manage_nicknames": false,
+        "manage_roles": false,
+        "manage_webhooks": false,
+        "manage_guild_expressions": false,
+        "use_application_commands": true,
+        "request_to_speak": false,
+        "manage_events": false,
+        "manage_threads": false,
+        "create_public_threads": true,
+        "create_private_threads": true,
+        "use_external_stickers": true,
+        "send_messages_in_threads": false,
+        "use_embedded_activities": false,
+        "moderate_members": false,
+        "view_creator_monetization_analytics": false,
+        "use_soundboard": false
+      }
+    },
+    {
+      "id": "1008440690470047805",
+      "comment": "mods",
+      "permissions": {
+        "create_instant_invite": true,
+        "kick_members": false,
+        "ban_members": false,
+        "administrator": false,
+        "manage_channels": false,
+        "manage_guild": false,
+        "add_reactions": true,
+        "view_audit_log": false,
+        "priority_speaker": false,
+        "stream": true,
+        "view_channel": true,
+        "send_messages": true,
+        "send_tts_messages": false,
+        "manage_messages": false,
+        "embed_links": true,
+        "attach_files": true,
+        "read_message_history": true,
+        "mention_everyone": true,
+        "use_external_emojis": true,
+        "view_guild_insights": false,
+        "connect": true,
+        "speak": true,
+        "mute_members": false,
+        "deafen_members": false,
+        "move_members": false,
+        "use_vad": true,
+        "change_nickname": true,
+        "manage_nicknames": false,
+        "manage_roles": false,
+        "manage_webhooks": false,
+        "manage_guild_expressions": false,
+        "use_application_commands": true,
+        "request_to_speak": true,
+        "manage_events": false,
+        "manage_threads": false,
+        "create_public_threads": true,
+        "create_private_threads": true,
+        "use_external_stickers": true,
+        "send_messages_in_threads": true,
+        "use_embedded_activities": true,
+        "moderate_members": false,
+        "view_creator_monetization_analytics": false,
+        "use_soundboard": false
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "1008440520672038993",
+      "comment": "Text channels",
+      "channels": [
+        {
+          "id": "1008440520672038995",
+          "comment": "general",
+          "type": "text",
+          "options": {
+            "nsfw": false,
+            "topic": "nothing",
+            "slowmode": 0
+          },
+          "overrides": [
+            {
+              "id": "1008440520168702053",
+              "comment": "@everyone",
+              "permissions": {
+                "manage_channels": true,
+                "manage_roles": false
+              }
+            },
+            {
+              "id": "1008440690470047805",
+              "comment": "mods",
+              "permissions": {
+                "embed_links": false
+              }
+            }
+          ]
+        }
+      ],
+      "overrides": [
+        {
+          "id": "1008440690470047805",
+          "comment": "mods",
+          "permissions": {
+            "embed_links": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "1008440520672038994",
+      "comment": "Voice channels",
+      "channels": [
+        {
+          "id": "1008440520672038996",
+          "comment": "General",
+          "type": "voice",
+          "options": {
+            "nsfw": false,
+            "bitrate": 64000,
+            "userLimit": 0
+          },
+          "overrides": []
+        }
+      ],
+      "overrides": []
+    }
+  ]
+}

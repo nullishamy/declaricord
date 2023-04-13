@@ -2,6 +2,8 @@ import { LuaFactory } from "wasmoon";
 import { Category, GuildChannel, GuildConfiguration, RoleOverride, Role, TextChannel, VoiceChannel, VoiceChannelWithOpts, TextChannelWithOpts } from "../util/schema.js";
 import { validated } from "../util/lua.js";
 import { z } from "zod";
+import assert from "assert";
+import { luaLib } from "../lua-lib/index.js";
 
 const factory = new LuaFactory()
 const engine = await factory.createEngine()
@@ -38,9 +40,22 @@ class GuildSetup {
 }
 
 export class GuildBuilder {
+    static LIB_NAME = 'lib'
+
     constructor(private readonly config: string) { }
 
     async readConfiguration(): Promise<GuildConfiguration> {
+        const _require = engine.global.get('require')
+        engine.global.set('require', (maybeLibName: unknown) => {
+            assert(typeof maybeLibName === 'string')
+            if (maybeLibName === GuildBuilder.LIB_NAME) {
+                return luaLib
+            }
+            else {
+                return _require(maybeLibName)
+            }
+        })
+        
         const result = await engine.doString(this.config)
         const setup = new GuildSetup(result.id)
 

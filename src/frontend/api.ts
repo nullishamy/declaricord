@@ -40,11 +40,13 @@ class GuildSetup {
 }
 
 export class GuildBuilder {
-    static LIB_NAME = 'lib'
+    static LIB_NAME = 'discord'
 
     constructor(private readonly config: string) { }
 
     async readConfiguration(): Promise<GuildConfiguration> {
+        // HACK: maybe find a better way to do this
+        // We hack into require to make our lib a module
         const _require = engine.global.get('require')
         engine.global.set('require', (maybeLibName: unknown) => {
             assert(typeof maybeLibName === 'string')

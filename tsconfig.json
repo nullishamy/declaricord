@@ -1,15 +1,12 @@
 {
   "exclude": [
     "node_modules",
-    "test",
+    "tests",
     "dist"
   ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-     "@frontend/*": ["src/frontend/*"],
-     "@backend/*": ["src/backend/*"],
-     "@util/*": ["src/util/*"]
     },
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */

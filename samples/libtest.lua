@@ -1,8 +1,8 @@
-local lib = require('lib')
+local dc = require('discord')
 
 return {
     id = "1008440520168702053",
     setup = function (self)
-        print(lib.no_permissions())
+        print(dc.no_permissions())
     end
 }

@@ -192,18 +192,18 @@ export class APIImpl extends API {
 
             for (const [perm, enabled] of Object.entries(r.permissions)) {
                 if (enabled) {
-                    allow = allow | BigInt(stringToBitField(perm))
+                    allow = allow | BigInt(stringToBitField(perm.toUpperCase()))
                 }
                 else {
-                    deny = deny | BigInt(stringToBitField(perm))
+                    deny = deny | BigInt(stringToBitField(perm.toUpperCase()))
                 }
             }
 
             return {
                 id: r.id,
                 type: 0, // Always role overrides,
-                allow,
-                deny
+                allow: allow.toString(),
+                deny: deny.toString()
             }
         })
 
@@ -256,6 +256,7 @@ export class APIImpl extends API {
 
         await this.rest.patch(Routes.guildRole(this.guildId, role.id), {
             body: {
+                name: role.comment,
                 permissions: permissions.toString()
             }
         })

@@ -1,24 +1,68 @@
 import { Client } from "./backend/client.js"
-import { diffConfigurations, stringifyDiff } from "./backend/diff.js"
-import { GuildBuilder as ConfigBuilder } from "./frontend/api.js"
+import { GuildBuilder } from "./frontend/api.js"
+import fs from 'fs/promises'
+import { Config } from "./util/config.js"
+import { Args } from "./frontend/cli/interface.js"
+import { GuildConfiguration } from "./util/schema.js"
+import { parseArgs } from "./frontend/cli/index.js"
 
-const builder = new ConfigBuilder((await import('fs')).readFileSync('./samples/test.lua', 'utf-8'))
-const configuration = await builder.readConfiguration()
+export interface App {
+    client: Client,
+    config: Config,
+    localConfig: GuildConfiguration,
+    remoteConfig: GuildConfiguration
+}
 
-const config = await builder.readConfiguration()
-// console.log('--- CONFIG ---');
-// console.log(JSON.stringify(config, undefined, 2));
-// console.log('--- CONFIG ---');
+const makeConfig = async (args: Args) => {
+    let config: Config
 
-const client = new Client(config.guildId, (await import('fs')).readFileSync('token.secret', 'utf-8'))
-const current = await client.pull(config.guildId)
-// console.log('--- DISCORD ---');
-// console.log(JSON.stringify(current, undefined, 2));
-// console.log('--- DISCORD ---');
+    // User passed a config path
+    if (args.config) {
+        config = Config.parse(JSON.parse(await fs.readFile(args.config, 'utf-8')))
+    }
+    // If not, assemble a config from args
+    else {
+        config = Config.parse({
+            token: args.token,
+            discordConfig: args.discordConfig,
+            silent: args.silent
+        })
+    }
+
+    // Apply overrides
+    if (args.token) {
+        config.token = args.token
+    }
+
+    if (args.discordConfig) {
+        config.discordConfig = args.discordConfig
+    }
 
 
-console.log('--- DIFF ---');
-console.log(stringifyDiff(diffConfigurations(config, current) ?? []) || 'NO CHANGE')
-console.log('--- DIFF ---');
+    if (args.verbosity) {
+        config.verbosity = args.verbosity
+    }
 
-// await client.push(config)
+    return config
+}
+
+export const wrapCommand = (cb: (args: Args, app: App) => void | Promise<void>) => {
+    return async (args: Args) => {
+        const config = await makeConfig(args)
+
+        const builder = new GuildBuilder(await fs.readFile(config.discordConfig, 'utf-8'))
+        const localConfig = await builder.readConfiguration()
+
+        const client = new Client(localConfig.guildId, config.token)
+        const remoteConfig = await client.pull(localConfig.guildId)
+
+        return cb(args, {
+            client,
+            config,
+            localConfig,
+            remoteConfig
+        })
+    }
+}
+
+await parseArgs()

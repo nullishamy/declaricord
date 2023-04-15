@@ -1,4 +1,0 @@
-describe('Parser', () => {
-    it("yes", () => {
-    })
-})

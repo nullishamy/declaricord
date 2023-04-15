@@ -5,6 +5,7 @@ import lint from './commands/lint.js'
 import pull from './commands/pull.js'
 import push from './commands/push.js'
 import { Args } from './interface.js'
+import dump from './commands/dump.js'
 
 let parsed: Args
 
@@ -38,6 +39,7 @@ export const parseArgs = async () => {
         .command(pull.command, pull.describe, pull.builder ?? (() => { }), wrapCommand(pull.handler))
         .command(push.command, push.describe, push.builder ?? (() => { }), wrapCommand(push.handler))
         .command(diff.command, diff.describe, diff.builder ?? (() => { }), wrapCommand(diff.handler))
+        .command(dump.command, dump.describe, dump.builder ?? (() => { }), wrapCommand(dump.handler))
         .help()
         .demandCommand()
         .wrap(null)

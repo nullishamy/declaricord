@@ -1,9 +1,8 @@
 import { LuaFactory } from "wasmoon";
-import { Category, GuildChannel, GuildConfiguration, RoleOverride, Role, TextChannel, VoiceChannel, VoiceChannelWithOpts, TextChannelWithOpts } from "../util/schema.js";
-import { validated } from "../util/lua.js";
 import { z } from "zod";
-import assert from "assert";
 import { luaLib } from "../lua-lib/index.js";
+import { validated } from "../util/lua.js";
+import { Category, GuildChannel, GuildConfiguration, Role, TextChannelWithOpts, VoiceChannelWithOpts } from "../util/schema.js";
 
 const factory = new LuaFactory()
 const engine = await factory.createEngine()
@@ -44,12 +43,11 @@ export class GuildBuilder {
 
     constructor(private readonly config: string) { }
 
-    async readConfiguration(): Promise<GuildConfiguration> {
+    async evaluateConfiguration(): Promise<GuildConfiguration> {
         // HACK: maybe find a better way to do this
         // We hack into require to make our lib a module
         const _require = engine.global.get('require')
         engine.global.set('require', (maybeLibName: unknown) => {
-            assert(typeof maybeLibName === 'string')
             if (maybeLibName === GuildBuilder.LIB_NAME) {
                 return luaLib
             }
@@ -61,6 +59,7 @@ export class GuildBuilder {
         const result = await engine.doString(this.config)
         const setup = new GuildSetup(result.id)
 
+        // FIXME: Type check this
         // Call the provided setup function
         result.setup(setup)
 

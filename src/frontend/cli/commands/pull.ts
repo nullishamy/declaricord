@@ -6,9 +6,10 @@ export default {
     aliases: [],
     describe: 'pull the config from discord',
     builder: undefined,
-    handler: (_args: Args, app: App) => {
+    handler: async (_args: Args, app: App) => {
+        const remoteConfig = await app.client.pull(app.localConfig.guildId)
         console.log('--- DISCORD ---');
-        console.log(JSON.stringify(app.remoteConfig, undefined, 2));
+        console.log(JSON.stringify(remoteConfig, undefined, 2));
         console.log('--- DISCORD ---');
     }
 } as const

@@ -10,7 +10,6 @@ export interface App {
     client: Client,
     config: Config,
     localConfig: GuildConfiguration,
-    remoteConfig: GuildConfiguration
 }
 
 const makeConfig = async (args: Args) => {
@@ -51,16 +50,14 @@ export const wrapCommand = (cb: (args: Args, app: App) => void | Promise<void>) 
         const config = await makeConfig(args)
 
         const builder = new GuildBuilder(await fs.readFile(config.discordConfig, 'utf-8'))
-        const localConfig = await builder.readConfiguration()
+        const localConfig = await builder.evaluateConfiguration()
 
         const client = new Client(localConfig.guildId, config.token)
-        const remoteConfig = await client.pull(localConfig.guildId)
 
         return cb(args, {
             client,
             config,
             localConfig,
-            remoteConfig
         })
     }
 }

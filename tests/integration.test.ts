@@ -7,18 +7,29 @@ async function loadTestFile(path: string): Promise<GuildBuilder> {
 }
 
 async function loadTestResult(path: string) {
-    return JSON.parse(await fs.readFile(`./test/${path}.lua.json`, 'utf-8'))
+    return JSON.parse(await fs.readFile(`./tests/results/${path}.lua.json`, 'utf-8'))
 }
 
-async function assertSameConfig(config: GuildConfiguration, resultPath: string) {
-    const resultJson = await loadTestResult(resultPath)
-    expect(config).toMatchObject(resultJson)
+async function runTest(path: string) {
+    const builder = await loadTestFile(path)
+    const config = await builder.evaluateConfiguration()
+    expect(config).toMatchSnapshot()
 }
 
 describe('Integrations', () => {
-    it("runs test.lua", async () => {
-        const builder = await loadTestFile('test')
-        const config = await builder.readConfiguration()
-        await assertSameConfig(config, 'test')
+    it("runs minimal.lua", () => {
+        return runTest('minimal')
+    })
+
+    it("runs roles.lua", () => {
+        return runTest('roles')
+    })
+
+    it("runs channels.lua", () => {
+        return runTest('channels')
+    })
+
+    it("runs channels-with-overrides.lua", () => {
+        return runTest('channels-with-overrides')
     })
 })

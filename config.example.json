@@ -1,4 +1,4 @@
 {
-    "token": "~~~~",
-    "discordConfig": "./samples/base.lua"
+  "token": "~~~~",
+  "discordConfig": "./samples/base.lua"
 }

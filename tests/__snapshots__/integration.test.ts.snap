@@ -168,6 +168,44 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
 }
 `;
 
+exports[`Integrations runs lib-minimal.lua 1`] = `
+{
+  "categories": [],
+  "globalChannels": [],
+  "globalRoles": [],
+  "guildId": "1234",
+}
+`;
+
+exports[`Integrations runs lib-roles.lua 1`] = `
+{
+  "categories": [],
+  "globalChannels": [
+    {
+      "comment": "test-channel",
+      "id": "482948923432",
+      "options": {
+        "nsfw": false,
+        "slowmode": 0,
+        "topic": "a topic",
+      },
+      "overrides": [
+        {
+          "comment": "mods-2",
+          "id": "42394823948909090",
+          "permissions": {
+            "move_members": true,
+          },
+        },
+      ],
+      "type": "text",
+    },
+  ],
+  "globalRoles": [],
+  "guildId": "1234",
+}
+`;
+
 exports[`Integrations runs minimal.lua 1`] = `
 {
   "categories": [],

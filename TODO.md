@@ -6,8 +6,8 @@
 [ ] Increase stability, add checks and balances
 [ ] Lua utils for making configs
 [ ] Tests
-    [ ] CI
-    [x] Local
+[ ] CI
+[x] Local
 [x] General cleanup
 [ ] Implement effective permission inheritance
 [ ] Report invalid / contradictory configs

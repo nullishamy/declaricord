@@ -1,65 +1,68 @@
-import { Client } from "./backend/client.js"
-import { GuildBuilder } from "./frontend/api.js"
-import fs from 'fs/promises'
-import { Config } from "./util/config.js"
-import { Args } from "./frontend/cli/interface.js"
-import { GuildConfiguration } from "./util/schema.js"
-import { parseArgs } from "./frontend/cli/index.js"
+import { Client } from "./backend/client.js";
+import { GuildBuilder } from "./frontend/api.js";
+import fs from "fs/promises";
+import { Config } from "./util/config.js";
+import { Args } from "./frontend/cli/interface.js";
+import { GuildConfiguration } from "./util/schema.js";
+import { parseArgs } from "./frontend/cli/index.js";
 
 export interface App {
-    client: Client,
-    config: Config,
-    localConfig: GuildConfiguration,
+  client: Client;
+  config: Config;
+  localConfig: GuildConfiguration;
 }
 
 const makeConfig = async (args: Args) => {
-    let config: Config
+  let config: Config;
 
-    // User passed a config path
-    if (args.config) {
-        config = Config.parse(JSON.parse(await fs.readFile(args.config, 'utf-8')))
-    }
-    // If not, assemble a config from args
-    else {
-        config = Config.parse({
-            token: args.token,
-            discordConfig: args.discordConfig,
-            silent: args.silent
-        })
-    }
+  // User passed a config path
+  if (args.config) {
+    config = Config.parse(JSON.parse(await fs.readFile(args.config, "utf-8")));
+  }
+  // If not, assemble a config from args
+  else {
+    config = Config.parse({
+      token: args.token,
+      discordConfig: args.discordConfig,
+      silent: args.silent,
+    });
+  }
 
-    // Apply overrides
-    if (args.token) {
-        config.token = args.token
-    }
+  // Apply overrides
+  if (args.token) {
+    config.token = args.token;
+  }
 
-    if (args.discordConfig) {
-        config.discordConfig = args.discordConfig
-    }
+  if (args.discordConfig) {
+    config.discordConfig = args.discordConfig;
+  }
 
+  if (args.verbosity) {
+    config.verbosity = args.verbosity;
+  }
 
-    if (args.verbosity) {
-        config.verbosity = args.verbosity
-    }
+  return config;
+};
 
-    return config
-}
+export const wrapCommand = (
+  cb: (args: Args, app: App) => void | Promise<void>
+) => {
+  return async (args: Args) => {
+    const config = await makeConfig(args);
 
-export const wrapCommand = (cb: (args: Args, app: App) => void | Promise<void>) => {
-    return async (args: Args) => {
-        const config = await makeConfig(args)
+    const builder = new GuildBuilder(
+      await fs.readFile(config.discordConfig, "utf-8")
+    );
+    const localConfig = await builder.evaluateConfiguration();
 
-        const builder = new GuildBuilder(await fs.readFile(config.discordConfig, 'utf-8'))
-        const localConfig = await builder.evaluateConfiguration()
+    const client = new Client(localConfig.guildId, config.token);
 
-        const client = new Client(localConfig.guildId, config.token)
+    return cb(args, {
+      client,
+      config,
+      localConfig,
+    });
+  };
+};
 
-        return cb(args, {
-            client,
-            config,
-            localConfig,
-        })
-    }
-}
-
-await parseArgs()
+await parseArgs();

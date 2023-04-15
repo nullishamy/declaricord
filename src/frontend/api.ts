@@ -1,10 +1,11 @@
+import assert from "assert";
 import { LuaFactory } from "wasmoon";
 import { z } from "zod";
 import { luaLib } from "../lua-lib/index.js";
 import { validated } from "../util/lua.js";
 import {
   Category,
-  GuildChannel,
+  GuildChannelWithOpts,
   GuildConfiguration,
   Role,
   TextChannelWithOpts,
@@ -15,7 +16,7 @@ const factory = new LuaFactory();
 const engine = await factory.createEngine();
 
 class GuildSetup {
-  public readonly globalChannels: GuildChannel[] = [];
+  public readonly globalChannels: GuildChannelWithOpts[] = [];
   public readonly globalRoles: Role[] = [];
   public readonly categories: Category[] = [];
 
@@ -58,21 +59,28 @@ export class GuildBuilder {
   async evaluateConfiguration(): Promise<GuildConfiguration> {
     // HACK: maybe find a better way to do this
     // We hack into require to make our lib a module
-    const _require = engine.global.get("require");
+    const _require: unknown = engine.global.get("require");
+    assert(typeof _require === "function", 'require was not a function');
+
     engine.global.set("require", (maybeLibName: unknown) => {
       if (maybeLibName === GuildBuilder.LIB_NAME) {
         return luaLib;
       } else {
-        return _require(maybeLibName);
+        return _require(maybeLibName) as unknown;
       }
     });
 
-    const result = await engine.doString(this.config);
-    const setup = new GuildSetup(result.id);
-
-    // FIXME: Type check this
-    // Call the provided setup function
-    result.setup(setup);
+    const result: unknown = await engine.doString(this.config);
+    
+    // Call the provided setup function after validating the shape
+    const validResult =z.object({
+        id: z.string().nonempty(),
+        setup: z.function(),
+    })
+    .parse(result)
+    
+    const setup = new GuildSetup(validResult.id);
+    validResult.setup(setup)
 
     return {
       guildId: setup.id,

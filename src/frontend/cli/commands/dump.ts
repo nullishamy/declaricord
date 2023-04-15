@@ -1,13 +1,12 @@
-import { Args } from "../interface.js";
-import { diffConfigurations, stringifyDiff } from "../../../backend/diff.js";
-import { App } from "../../../index.js";
+import { Args } from '../interface.js'
+import { App } from '../../../index.js'
 
 export default {
-  command: ["dump"],
+  command: ['dump'],
   aliases: [],
-  describe: "dump the local config as JSON",
+  describe: 'dump the local config as JSON',
   builder: undefined,
   handler: (_args: Args, app: App) => {
-    console.log(JSON.stringify(app.localConfig, undefined, 2));
-  },
-} as const;
+    console.log(JSON.stringify(app.localConfig, undefined, 2))
+  }
+} 

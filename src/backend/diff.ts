@@ -31,15 +31,13 @@ export function stringifyDiff(diff: Diff<GuildConfiguration>[]): string {
           d.lhs,
           d.path
         )} missing from Discord but present in local config`;
-      } else if (d.kind === "E") {
+      } else {
         return `Value divergence @ '${
           d.path?.join(".") ?? "root"
         }': Config: '${JSON.stringify(d.lhs)}' -- Discord: '${JSON.stringify(
           d.rhs
         )}'`;
       }
-
-      throw "impossible";
     })
     .join("\n");
 }

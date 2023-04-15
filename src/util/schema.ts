@@ -10,7 +10,7 @@ export const RoleOverride = z
   })
   .catchall(z.boolean().or(z.undefined()))
   .transform((data) => {
-    const { id, comment, permissions, ..._permissions } = data;
+    const { id, comment, ..._permissions } = data;
 
     return {
       id,
@@ -22,6 +22,8 @@ export const RoleOverride = z
 const OverrideArray = z
   .union([z.array(RoleOverride), z.object({})])
   .default([]);
+
+type OverrideArray = z.infer<typeof OverrideArray>;
 
 export const VoiceChannel = z.object({
   id: z.string(),
@@ -48,6 +50,11 @@ export const TextChannel = z.object({
 export const TextChannelWithOpts = TextChannel.transform((data) => {
   const { id, comment, topic, nsfw, slowmode, overrides } = data;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const typedOverrides: RoleOverride[] = !Array.isArray(overrides)
+    ? ([] as RoleOverride[])
+    : overrides;
+
   return {
     id,
     comment,
@@ -57,12 +64,17 @@ export const TextChannelWithOpts = TextChannel.transform((data) => {
       topic,
       slowmode,
     },
-    overrides: !Array.isArray(overrides) ? [] : overrides,
+    overrides: typedOverrides,
   };
 });
 
 export const VoiceChannelWithOpts = VoiceChannel.transform((data) => {
   const { id, comment, nsfw, bitrate, user_limit, overrides } = data;
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const typedOverrides: RoleOverride[] = !Array.isArray(overrides)
+    ? []
+    : overrides;
 
   return {
     id,
@@ -73,45 +85,56 @@ export const VoiceChannelWithOpts = VoiceChannel.transform((data) => {
       bitrate,
       userLimit: user_limit,
     },
-    overrides: !Array.isArray(overrides) ? [] : overrides,
+    overrides: typedOverrides,
   };
 });
 
-export const GuildChannel = z
-  .discriminatedUnion("type", [VoiceChannel, TextChannel])
-  .transform((data) => {
-    if (data.type === "text") {
-      const { id, comment, topic, nsfw, slowmode, overrides } = data;
+export const GuildChannel = z.discriminatedUnion("type", [
+  VoiceChannel,
+  TextChannel,
+]);
 
-      return {
-        id,
-        comment,
-        type: "text" as const,
-        options: {
-          nsfw,
-          topic,
-          slowmode,
-        },
-        overrides: !Array.isArray(overrides) ? [] : overrides,
-      };
-    } else if (data.type === "voice") {
-      const { id, comment, nsfw, bitrate, user_limit, overrides } = data;
+export const GuildChannelWithOpts = GuildChannel.transform((data) => {
+  if (data.type === "text") {
+    const { id, comment, topic, nsfw, slowmode, overrides } = data;
 
-      return {
-        id,
-        comment,
-        type: "voice" as const,
-        options: {
-          nsfw,
-          bitrate,
-          userLimit: user_limit,
-        },
-        overrides: !Array.isArray(overrides) ? [] : overrides,
-      };
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const typedOverrides: RoleOverride[] = !Array.isArray(overrides)
+      ? []
+      : overrides;
 
-    throw "impossible";
-  });
+    return {
+      id,
+      comment,
+      type: "text" as const,
+      options: {
+        nsfw,
+        topic,
+        slowmode,
+      },
+      overrides: typedOverrides,
+    };
+  } else {
+    const { id, comment, nsfw, bitrate, user_limit, overrides } = data;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const typedOverrides: RoleOverride[] = !Array.isArray(overrides)
+      ? []
+      : overrides;
+
+    return {
+      id,
+      comment,
+      type: "voice" as const,
+      options: {
+        nsfw,
+        bitrate,
+        userLimit: user_limit,
+      },
+      overrides: typedOverrides,
+    };
+  }
+});
 
 export const Role = z
   .object({
@@ -133,10 +156,12 @@ export const Role = z
 export const Category = z.object({
   id: z.string(),
   comment: z.string(),
-  channels: z.array(GuildChannel),
-  overrides: OverrideArray.transform((data) =>
-    !Array.isArray(data) ? [] : data
-  ),
+  channels: z.array(GuildChannelWithOpts),
+  overrides: OverrideArray.transform((data) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const typedOverrides: RoleOverride[] = !Array.isArray(data) ? [] : data;
+    return typedOverrides;
+  }),
 });
 
 export type TextChannel = z.infer<typeof TextChannel>;
@@ -144,13 +169,15 @@ export type VoiceChannel = z.infer<typeof VoiceChannel>;
 export type TextChannelWithOpts = z.infer<typeof TextChannelWithOpts>;
 export type VoiceChannelWithOpts = z.infer<typeof VoiceChannelWithOpts>;
 export type GuildChannel = z.infer<typeof GuildChannel>;
+export type GuildChannelWithOpts = z.infer<typeof GuildChannelWithOpts>;
 export type RoleOverride = z.infer<typeof RoleOverride>;
 export type Role = z.infer<typeof Role>;
 export type Category = z.infer<typeof Category>;
+/* eslint-enable @typescript-eslint/no-redeclare */
 
-export type GuildConfiguration = {
+export interface GuildConfiguration {
   guildId: string;
   globalRoles: Role[];
-  globalChannels: GuildChannel[];
+  globalChannels: GuildChannelWithOpts[];
   categories: Category[];
-};
+}

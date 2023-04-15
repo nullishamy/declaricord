@@ -1,45 +1,40 @@
-import { GuildBuilder } from "../src/frontend/api";
-import fs from "fs/promises";
-import { GuildConfiguration } from "../src/util/schema.js";
+/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 
-async function loadTestFile(path: string): Promise<GuildBuilder> {
-  return new GuildBuilder(await fs.readFile(`./samples/${path}.lua`, "utf-8"));
+import { GuildBuilder } from '../src/frontend/api'
+import fs from 'fs/promises'
+
+async function loadTestFile (path: string): Promise<GuildBuilder> {
+  return new GuildBuilder(await fs.readFile(`./samples/${path}.lua`, 'utf-8'))
 }
 
-async function loadTestResult(path: string) {
-  return JSON.parse(
-    await fs.readFile(`./tests/results/${path}.lua.json`, "utf-8")
-  );
+async function runTest (path: string) {
+  const builder = await loadTestFile(path)
+  const config = await builder.evaluateConfiguration()
+  expect(config).toMatchSnapshot()
 }
 
-async function runTest(path: string) {
-  const builder = await loadTestFile(path);
-  const config = await builder.evaluateConfiguration();
-  expect(config).toMatchSnapshot();
-}
+describe('Integrations', () => {
+  it('runs minimal.lua', async () => {
+    return await runTest('minimal')
+  })
 
-describe("Integrations", () => {
-  it("runs minimal.lua", () => {
-    return runTest("minimal");
-  });
+  it('runs lib-minimal.lua', async () => {
+    return await runTest('lib-minimal')
+  })
 
-  it("runs lib-minimal.lua", () => {
-    return runTest("lib-minimal");
-  });
+  it('runs roles.lua', async () => {
+    return await runTest('roles')
+  })
 
-  it("runs roles.lua", () => {
-    return runTest("roles");
-  });
+  it('runs channels.lua', async () => {
+    return await runTest('channels')
+  })
 
-  it("runs channels.lua", () => {
-    return runTest("channels");
-  });
+  it('runs channels-with-overrides.lua', async () => {
+    return await runTest('channels-with-overrides')
+  })
 
-  it("runs channels-with-overrides.lua", () => {
-    return runTest("channels-with-overrides");
-  });
-
-  it("runs lib-roles.lua", () => {
-    return runTest("lib-roles");
-  });
-});
+  it('runs lib-roles.lua', async () => {
+    return await runTest('lib-roles')
+  })
+})

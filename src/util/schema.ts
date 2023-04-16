@@ -2,11 +2,12 @@ import { AllDisabledPerms } from "../backend/permissions.js";
 import { z } from "zod";
 
 const Id = z.string().regex(/^\d{17,19}$/);
+const Comment = z.string().min(1).max(100)
 
 export const RoleOverride = z
   .object({
     id: Id,
-    comment: z.string(),
+    comment: Comment,
 
     permissions: z.any(),
   })
@@ -30,7 +31,7 @@ type OverrideArray = z.infer<typeof OverrideArray>;
 export const VoiceChannel = z.object({
   id: Id,
   parentId: Id.optional(),
-  comment: z.string(),
+  comment: Comment,
   type: z.literal("voice").default("voice"),
 
   nsfw: z.boolean().default(false),
@@ -42,8 +43,8 @@ export const VoiceChannel = z.object({
 export const TextChannel = z.object({
   id: Id,
   parentId: Id.optional(),
-  comment: z.string(),
-  topic: z.string().optional(),
+  comment: Comment,
+  topic: z.string().max(4096).optional(),
   type: z.literal("text").default("text"),
 
   nsfw: z.boolean().default(false),
@@ -147,7 +148,7 @@ export const GuildChannelWithOpts = GuildChannel.transform((data) => {
 export const Role = z
   .object({
     id: Id,
-    comment: z.string(),
+    comment: Comment,
   })
   .catchall(z.boolean().or(z.undefined()))
   .transform((data) => {
@@ -164,7 +165,7 @@ export const Role = z
 export const Category = z
   .object({
     id: Id,
-    comment: z.string(),
+    comment: Comment,
     channels: z.array(GuildChannelWithOpts),
     overrides: OverrideArray.transform((data) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

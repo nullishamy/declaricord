@@ -1,7 +1,7 @@
 import assert from "assert";
 import { LuaFactory } from "wasmoon";
 import { z } from "zod";
-import { luaLib } from "../lua-lib/index.js";
+import { luaLib } from "../runtime/index.js";
 import { validated } from "../util/lua.js";
 import {
   Category,

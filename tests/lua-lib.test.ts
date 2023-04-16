@@ -1,4 +1,4 @@
-import { stored } from "../src/lua-lib/stored.js";
+import { stored } from "../src/runtime/stored.js";
 
 describe("Lua library", () => {
   const DEFAULT_ROLE = {

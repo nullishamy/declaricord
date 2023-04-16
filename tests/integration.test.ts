@@ -41,6 +41,10 @@ describe("Integrations", () => {
     return await runTest("categories");
   });
 
+  it("runs lint-fails.lua", async () => {
+    return await runTest("lint-fails");
+  });
+
   // Lib
   it("runs lib-roles.lua", async () => {
     return await runTest("lib-roles");

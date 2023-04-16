@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon --watch samples dist/index.js -- -c ./config.json",
-    "dev": "concurrently --kill-others --prefix [{name}] --names tsc,cleaner,node \"npm:build:watch\" \"npm:cleaner\" \"npm:start\"",
+    "start": "node dist/index.js",
+    "dev": "concurrently --kill-others --prefix [{name}] --names tsc,cleaner \"npm:build:watch\" \"npm:cleaner\"",
     "cleaner": "ts-cleaner --dist dist --watch",
     "build": "tsc",
     "build:watch": "tsc --watch --preserveWatchOutput",
@@ -15,7 +15,7 @@
     "prepare": "husky install"
   },
   "author": "nullishamy",
-  "license": "MIT",
+  "license": "OSL3",
   "dependencies": {
     "@discordjs/rest": "^1.7.0",
     "deep-diff": "^1.0.2",
@@ -48,6 +48,9 @@
     "tsconfig": "^7.0.0"
   },
   "lint-staged": {
-    "*.(ts|js)": "eslint --cache --fix && prettier"
+    "*.(ts|js)": [
+      "eslint --cache --fix",
+      "prettier"
+    ]
   }
 }

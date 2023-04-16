@@ -7,6 +7,8 @@
 [x] Flake devshell with direnv
 [x] Dependency cleanup
 [x] Development tools (linting, formatting)
+[x] More accurately validate API types (length, forbidden chars)
+[x] Lua type hinting (teal support?)
 [ ] Tests - [ ] CI - [x] Local
 [ ] Increase stability, add checks and balances
 [ ] Lua utils for making configs
@@ -15,5 +17,4 @@
 [ ] Config linting for bad practice
 [ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
-[ ] Lua type hinting (teal support?)
-[ ] More accurately validate API types (length, forbidden chars)
+[ ] Zod parsing for lualib

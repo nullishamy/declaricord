@@ -2,6 +2,7 @@ local dc = require('discord')
 
 return {
     id = "1008440520168702053",
+    ---@param self GuildSetup
     setup = function(self)
         self.global.text {
             id      = "1094801227080015882",

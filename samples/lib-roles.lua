@@ -2,6 +2,7 @@ local dc = require('discord')
 
 return {
     id = "1094801227080015882",
+    ---@param self GuildSetup
     setup = function(self)
         -- Store a role
         dc.stored {

@@ -1,5 +1,6 @@
 return {
     id = "1094801227080015882",
+    ---@param self GuildSetup
     setup = function(self)
         self.category {
             id = "1094801227080015882",
@@ -7,7 +8,7 @@ return {
             channels = {
                 self.channel.text {
                     id = "1094801227080015882",
-                    comment = "a-channel"
+                    comment = "a-channel",
                 },
                 self.channel.voice {
                     id = "1094801227080015882",

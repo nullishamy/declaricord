@@ -1,7 +1,7 @@
 local dc = require('discord')
 
 return {
-    id = "1234",
+    id = "1094801227080015882",
     setup = function(self)
         -- Store a role
         dc.stored {
@@ -10,11 +10,12 @@ return {
             move_members = true
         }
 
-        self.global_channel.text {
-            id = "482948923432",
+        self.global.text {
+            id = "1094801227080015882",
             comment = "test-channel",
             topic = "a topic",
             overrides = {
+                -- Fetch it back
                 dc.stored("42394823948909090")
             }
         }

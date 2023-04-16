@@ -11,7 +11,7 @@
     "build": "tsc",
     "build:watch": "tsc --watch --preserveWatchOutput",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:watch": "jest --watch",
+    "test:watch": "npm run test -- --watch",
     "prepare": "husky install"
   },
   "author": "nullishamy",
@@ -27,11 +27,12 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@jest/globals": "^29.5.0",
+    "@types/deep-diff": "^1.0.2",
     "@types/jest": "^29.5.0",
+    "@types/node": "^18.11.19",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
-    "@types/deep-diff": "^1.0.2",
-    "@types/node": "^18.11.19",
     "babel-jest": "^29.5.0",
     "concurrently": "^7.6.0",
     "eslint": "^8.23.1",

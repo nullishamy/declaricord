@@ -1,56 +1,132 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Integrations runs categories.lua 1`] = `
+{
+  "categories": [
+    {
+      "channels": [
+        {
+          "comment": "a-channel",
+          "id": "1094801227080015882",
+          "options": {
+            "nsfw": false,
+            "slowmode": 0,
+            "topic": undefined,
+          },
+          "overrides": [],
+          "parentId": "1094801227080015882",
+          "type": "text",
+        },
+        {
+          "comment": "a-voice-channel",
+          "id": "1094801227080015882",
+          "options": {
+            "bitrate": undefined,
+            "nsfw": false,
+            "userLimit": undefined,
+          },
+          "overrides": [],
+          "parentId": "1094801227080015882",
+          "type": "voice",
+        },
+      ],
+      "comment": "a-category",
+      "id": "1094801227080015882",
+      "overrides": [],
+    },
+    {
+      "channels": [
+        {
+          "comment": "an-nsfw-channel",
+          "id": "1094801227080015882",
+          "options": {
+            "nsfw": true,
+            "slowmode": 0,
+            "topic": undefined,
+          },
+          "overrides": [],
+          "parentId": "1094801227080015882",
+          "type": "text",
+        },
+        {
+          "comment": "a-voice-channel",
+          "id": "1094801227080015882",
+          "options": {
+            "bitrate": undefined,
+            "nsfw": false,
+            "userLimit": undefined,
+          },
+          "overrides": [],
+          "parentId": "1094801227080015882",
+          "type": "voice",
+        },
+      ],
+      "comment": "another-category",
+      "id": "1094801227080015882",
+      "overrides": [],
+    },
+  ],
+  "globalChannels": [],
+  "globalRoles": [],
+  "guildId": "1094801227080015882",
+}
+`;
+
 exports[`Integrations runs channels.lua 1`] = `
 {
   "categories": [],
   "globalChannels": [
     {
-      "comment": "test-channel-3",
-      "id": "47219193891483",
-      "options": {
-        "nsfw": false,
-        "slowmode": 25,
-        "topic": undefined,
-      },
-      "overrides": [],
-      "type": "text",
-    },
-    {
-      "comment": "test-channel-2",
-      "id": "4782347298909",
-      "options": {
-        "bitrate": undefined,
-        "nsfw": true,
-        "userLimit": undefined,
-      },
-      "overrides": [],
-      "type": "voice",
-    },
-    {
       "comment": "test-channel",
-      "id": "482948923432",
+      "id": "1094801227080015882",
       "options": {
         "nsfw": false,
         "slowmode": 0,
         "topic": "a topic",
       },
       "overrides": [],
+      "parentId": undefined,
       "type": "text",
     },
     {
       "comment": "test-channel-2",
-      "id": "4829489242378472",
+      "id": "1094801227080015882",
+      "options": {
+        "bitrate": undefined,
+        "nsfw": true,
+        "userLimit": undefined,
+      },
+      "overrides": [],
+      "parentId": undefined,
+      "type": "voice",
+    },
+    {
+      "comment": "test-channel-2",
+      "id": "1094801227080015882",
       "options": {
         "nsfw": true,
         "slowmode": 25,
         "topic": undefined,
       },
       "overrides": [],
+      "parentId": undefined,
+      "type": "text",
+    },
+    {
+      "comment": "test-channel-3",
+      "id": "1094801227080015882",
+      "options": {
+        "nsfw": false,
+        "slowmode": 25,
+        "topic": undefined,
+      },
+      "overrides": [],
+      "parentId": undefined,
       "type": "text",
     },
   ],
   "globalRoles": [],
-  "guildId": "74219472891732",
+  "guildId": "1094801227080015882",
 }
 `;
 
@@ -59,60 +135,8 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
   "categories": [],
   "globalChannels": [
     {
-      "comment": "test-channel-3",
-      "id": "47219193891483",
-      "options": {
-        "nsfw": false,
-        "slowmode": 25,
-        "topic": undefined,
-      },
-      "overrides": [
-        {
-          "comment": "mods",
-          "id": "42394823948",
-          "permissions": {
-            "manage_roles": true,
-          },
-        },
-        {
-          "comment": "mods-2",
-          "id": "42394823948909090",
-          "permissions": {
-            "move_members": true,
-          },
-        },
-      ],
-      "type": "text",
-    },
-    {
-      "comment": "test-channel-2",
-      "id": "4782347298909",
-      "options": {
-        "bitrate": undefined,
-        "nsfw": true,
-        "userLimit": undefined,
-      },
-      "overrides": [
-        {
-          "comment": "mods",
-          "id": "42394823948",
-          "permissions": {
-            "speak": false,
-          },
-        },
-        {
-          "comment": "mods-2",
-          "id": "42394823948909090",
-          "permissions": {
-            "priority_speaker": true,
-          },
-        },
-      ],
-      "type": "voice",
-    },
-    {
       "comment": "test-channel",
-      "id": "482948923432",
+      "id": "1094801227080015882",
       "options": {
         "nsfw": false,
         "slowmode": 0,
@@ -121,24 +145,52 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
       "overrides": [
         {
           "comment": "mods",
-          "id": "42394823948",
+          "id": "1094801227080015882",
           "permissions": {
             "use_vad": true,
           },
         },
         {
           "comment": "mods-2",
-          "id": "42394823948909090",
+          "id": "1094801227080015882",
           "permissions": {
             "send_messages": true,
           },
         },
       ],
+      "parentId": undefined,
       "type": "text",
     },
     {
       "comment": "test-channel-2",
-      "id": "4829489242378472",
+      "id": "1094801227080015882",
+      "options": {
+        "bitrate": undefined,
+        "nsfw": true,
+        "userLimit": undefined,
+      },
+      "overrides": [
+        {
+          "comment": "mods",
+          "id": "1094801227080015882",
+          "permissions": {
+            "speak": false,
+          },
+        },
+        {
+          "comment": "mods-2",
+          "id": "1094801227080015882",
+          "permissions": {
+            "priority_speaker": true,
+          },
+        },
+      ],
+      "parentId": undefined,
+      "type": "voice",
+    },
+    {
+      "comment": "test-channel-2",
+      "id": "1094801227080015882",
       "options": {
         "nsfw": true,
         "slowmode": 25,
@@ -147,24 +199,52 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
       "overrides": [
         {
           "comment": "mods",
-          "id": "42394823948",
+          "id": "1094801227080015882",
           "permissions": {
             "manage_messages": true,
           },
         },
         {
           "comment": "mods-2",
-          "id": "42394823948909090",
+          "id": "1094801227080015882",
           "permissions": {
             "attach_files": false,
           },
         },
       ],
+      "parentId": undefined,
+      "type": "text",
+    },
+    {
+      "comment": "test-channel-3",
+      "id": "1094801227080015882",
+      "options": {
+        "nsfw": false,
+        "slowmode": 25,
+        "topic": undefined,
+      },
+      "overrides": [
+        {
+          "comment": "mods",
+          "id": "1094801227080015882",
+          "permissions": {
+            "manage_roles": true,
+          },
+        },
+        {
+          "comment": "mods-2",
+          "id": "1094801227080015882",
+          "permissions": {
+            "move_members": true,
+          },
+        },
+      ],
+      "parentId": undefined,
       "type": "text",
     },
   ],
   "globalRoles": [],
-  "guildId": "74219472891732",
+  "guildId": "1094801227080015882",
 }
 `;
 
@@ -173,7 +253,7 @@ exports[`Integrations runs lib-minimal.lua 1`] = `
   "categories": [],
   "globalChannels": [],
   "globalRoles": [],
-  "guildId": "1234",
+  "guildId": "1094801227080015882",
 }
 `;
 
@@ -183,7 +263,7 @@ exports[`Integrations runs lib-roles.lua 1`] = `
   "globalChannels": [
     {
       "comment": "test-channel",
-      "id": "482948923432",
+      "id": "1094801227080015882",
       "options": {
         "nsfw": false,
         "slowmode": 0,
@@ -198,11 +278,71 @@ exports[`Integrations runs lib-roles.lua 1`] = `
           },
         },
       ],
+      "parentId": undefined,
       "type": "text",
     },
   ],
   "globalRoles": [],
-  "guildId": "1234",
+  "guildId": "1094801227080015882",
+}
+`;
+
+exports[`Integrations runs lib-visit.lua 1`] = `
+{
+  "categories": [],
+  "globalChannels": [],
+  "globalRoles": [
+    {
+      "comment": "nil",
+      "id": "1094801227080015882",
+      "permissions": {
+        "add_reactions": false,
+        "administrator": false,
+        "attach_files": false,
+        "ban_members": false,
+        "change_nickname": false,
+        "connect": false,
+        "create_instant_invite": false,
+        "create_private_threads": false,
+        "create_public_threads": false,
+        "deafen_members": false,
+        "embed_links": false,
+        "kick_members": false,
+        "manage_channels": true,
+        "manage_events": false,
+        "manage_guild": false,
+        "manage_guild_expressions": false,
+        "manage_messages": false,
+        "manage_nicknames": false,
+        "manage_roles": false,
+        "manage_threads": false,
+        "manage_webhooks": false,
+        "mention_everyone": false,
+        "moderate_members": false,
+        "move_members": false,
+        "mute_members": false,
+        "priority_speaker": false,
+        "read_message_history": false,
+        "request_to_speak": false,
+        "send_messages": false,
+        "send_messages_in_threads": false,
+        "send_tts_messages": false,
+        "speak": false,
+        "stream": false,
+        "use_application_commands": false,
+        "use_embedded_activities": false,
+        "use_external_emojis": false,
+        "use_external_stickers": false,
+        "use_soundboard": false,
+        "use_vad": false,
+        "view_audit_log": false,
+        "view_channel": false,
+        "view_creator_monetization_analytics": false,
+        "view_guild_insights": false,
+      },
+    },
+  ],
+  "guildId": "1094801227080015882",
 }
 `;
 
@@ -211,7 +351,7 @@ exports[`Integrations runs minimal.lua 1`] = `
   "categories": [],
   "globalChannels": [],
   "globalRoles": [],
-  "guildId": "1234",
+  "guildId": "1094801227080015882",
 }
 `;
 
@@ -222,7 +362,7 @@ exports[`Integrations runs roles.lua 1`] = `
   "globalRoles": [
     {
       "comment": "test-role",
-      "id": "5678",
+      "id": "1094801227080015882",
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -271,7 +411,7 @@ exports[`Integrations runs roles.lua 1`] = `
     },
     {
       "comment": "another-test-role",
-      "id": "91024",
+      "id": "1094801227080015882",
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -320,7 +460,7 @@ exports[`Integrations runs roles.lua 1`] = `
     },
     {
       "comment": "another-another-test-role",
-      "id": "91024",
+      "id": "1094801227080015882",
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -368,6 +508,6 @@ exports[`Integrations runs roles.lua 1`] = `
       },
     },
   ],
-  "guildId": "1234",
+  "guildId": "1094801227080015882",
 }
 `;

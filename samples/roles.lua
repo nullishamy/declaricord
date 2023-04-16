@@ -1,21 +1,21 @@
 return {
-    id = "1234",
-    setup = function (self)
-        self.global_role {
-            id = "5678",
+    id = "1094801227080015882",
+    setup = function(self)
+        self.global.role {
+            id = "1094801227080015882",
             comment = "test-role"
         }
 
-        self.global_role {
-            id = "91024",
+        self.global.role {
+            id = "1094801227080015882",
             comment = "another-test-role",
 
             manage_channels = true
         }
 
-        
-        self.global_role {
-            id = "91024",
+
+        self.global.role {
+            id = "1094801227080015882",
             comment = "another-another-test-role",
 
             manage_channels = true,

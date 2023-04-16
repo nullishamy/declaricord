@@ -15,7 +15,7 @@ import {
 const factory = new LuaFactory();
 const engine = await factory.createEngine();
 
-class GuildSetup {
+export class GuildSetup {
   public readonly globalChannels: GuildChannelWithOpts[] = [];
   public readonly globalRoles: Role[] = [];
   public readonly categories: Category[] = [];
@@ -23,16 +23,15 @@ class GuildSetup {
   constructor(public readonly id: string) {}
 
   // Orphan setup
-  global_channel = {
+  global = {
     text: validated((tbl) => {
       this.globalChannels.push(tbl);
     }, TextChannelWithOpts),
     voice: validated((tbl) => {
       this.globalChannels.push(tbl);
     }, VoiceChannelWithOpts),
+    role: validated((tbl) => this.globalRoles.push(tbl), Role),
   };
-
-  global_role = validated((tbl) => this.globalRoles.push(tbl), Role);
 
   // Category setup
   channel = {
@@ -60,7 +59,7 @@ export class GuildBuilder {
     // HACK: maybe find a better way to do this
     // We hack into require to make our lib a module
     const _require: unknown = engine.global.get("require");
-    assert(typeof _require === "function", 'require was not a function');
+    assert(typeof _require === "function", "require was not a function");
 
     engine.global.set("require", (maybeLibName: unknown) => {
       if (maybeLibName === GuildBuilder.LIB_NAME) {
@@ -71,16 +70,17 @@ export class GuildBuilder {
     });
 
     const result: unknown = await engine.doString(this.config);
-    
+
     // Call the provided setup function after validating the shape
-    const validResult =z.object({
+    const validResult = z
+      .object({
         id: z.string().nonempty(),
         setup: z.function(),
-    })
-    .parse(result)
-    
+      })
+      .parse(result);
+
     const setup = new GuildSetup(validResult.id);
-    validResult.setup(setup)
+    validResult.setup(setup);
 
     return {
       guildId: setup.id,

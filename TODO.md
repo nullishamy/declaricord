@@ -16,3 +16,4 @@
 [ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
 [ ] Lua type hinting (teal support?)
+[ ] More accurately validate API types (length, forbidden chars)

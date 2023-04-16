@@ -65,4 +65,5 @@ export const wrapCommand = (
   }
 }
 
+// This will parse the selected command and run it, starting the app
 await parseArgs()

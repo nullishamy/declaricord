@@ -67,6 +67,7 @@ export class APIImpl extends API {
             type: 'text' as const,
             comment: c.name,
             id: c.id,
+            parentId: undefined,
             options: {
               nsfw: c.nsfw ?? false,
               slowmode: c.rate_limit_per_user ?? 0,
@@ -84,6 +85,7 @@ export class APIImpl extends API {
             type: 'voice' as const,
             comment: c.name,
             id: c.id,
+            parentId: undefined,
             options: {
               nsfw: c.nsfw ?? false,
               bitrate: c.bitrate,
@@ -151,7 +153,7 @@ export class APIImpl extends API {
             return acc
           }
 
-          if (val.parent_id in acc) {
+          if (!(val.parent_id in acc)) {
             const parent = mappedChannels[val.parent_id]
             if (parent.type !== ChannelType.GuildCategory) {
               throw new Error(`expected ChannelType.GuildCategory, got ${ChannelType[parent.type]}`)
@@ -177,6 +179,7 @@ export class APIImpl extends API {
               type: 'text' as const,
               comment: val.name,
               id: val.id,
+              parentId: val.parent_id,
               options: {
                 nsfw: val.nsfw ?? false,
                 slowmode: val.rate_limit_per_user ?? 0,
@@ -194,6 +197,7 @@ export class APIImpl extends API {
               type: 'voice' as const,
               comment: val.name,
               id: val.id,
+              parentId: val.parent_id,
               options: {
                 nsfw: val.nsfw ?? false,
                 bitrate: val.bitrate,

@@ -4,7 +4,7 @@ return {
     setup = function(self)
         self.global.role {
             id = "1094801227080015882",
-            comment = "test-role"
+            comment = "@everyone"
         }
 
         self.global.role {

@@ -12,7 +12,7 @@ return {
 
         self.global.role {
             id = "1094801227080015882",
-            comment = "nil"
+            comment = "@everyone"
         }
 
         dc.visit(self)

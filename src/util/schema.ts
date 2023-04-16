@@ -1,4 +1,4 @@
-import { AllDisabledPerms } from "../backend/permissions.js";
+import { AllDisabledPerms, AllUndefinedPerms } from "../backend/permissions.js";
 import { z } from "zod";
 
 const Id = z.string().regex(/^\d{17,19}$/);
@@ -14,11 +14,12 @@ export const RoleOverride = z
   .catchall(z.boolean().or(z.undefined()))
   .transform((data) => {
     const { id, comment, ..._permissions } = data;
+    const nulledPermissions = { ...AllUndefinedPerms, ..._permissions}
 
     return {
       id,
       comment,
-      permissions: _permissions,
+      permissions: nulledPermissions,
     };
   });
 

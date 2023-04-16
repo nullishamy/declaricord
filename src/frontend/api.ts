@@ -16,9 +16,9 @@ const factory = new LuaFactory();
 const engine = await factory.createEngine();
 
 export class GuildSetup {
-  public readonly globalChannels: GuildChannelWithOpts[] = [];
-  public readonly globalRoles: Role[] = [];
-  public readonly categories: Category[] = [];
+  public globalChannels: GuildChannelWithOpts[] = [];
+  public globalRoles: Role[] = [];
+  public categories: Category[] = [];
 
   constructor(public readonly id: string) {}
 
@@ -81,6 +81,59 @@ export class GuildBuilder {
 
     const setup = new GuildSetup(validResult.id);
     validResult.setup(setup);
+
+    const atEveryone = setup.globalRoles.find((r) => r.comment === "@everyone");
+
+    if (!atEveryone) {
+      throw new Error("@everyone role not declared, please declare it");
+    }
+
+    // Inherit perms from @everyone (that grant perms) in every global role
+    const applicablePerms = Object.entries(atEveryone.permissions)
+      .filter(([, enabled]) => enabled)
+      .reduce<Record<string, boolean | undefined>>((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+
+    setup.globalRoles = setup.globalRoles.map((r) => ({
+      ...r,
+      permissions: {
+        ...r.permissions,
+        ...applicablePerms,
+      },
+    }));
+
+    // Inherit perms from categories into their children
+    for (const category of setup.categories) {
+      for (const channel of category.channels) {
+        for (const override of category.overrides) {
+          const channelOverride = channel.overrides.find(
+            (o) => o.id === override.id
+          );
+
+          // The channel declares some override with the same ID as the category
+          // We should merge keys set to inherit from the category
+          if (channelOverride) {
+            for (const [perm, enabled] of Object.entries(
+              channelOverride.permissions
+            )) {
+              const shouldSync = enabled === undefined;
+
+              if (shouldSync) {
+                // Move the category permission setting into the channel
+                channelOverride.permissions[perm] = override.permissions[perm]
+              }
+            }
+          }
+          else {
+            // Otherwise, we should just push the override directly
+            // The channel does not declare its own version
+            channel.overrides.push(override)
+          }
+        }
+      }
+    }
 
     return {
       guildId: setup.id,

@@ -52,6 +52,12 @@ export const AllDisabledPerms = Object.keys(Permissions).reduce<Record<keyof typ
   return acc
 }, {})
 
+
+export const AllUndefinedPerms = Object.keys(Permissions).reduce<Record<keyof typeof Permissions, undefined>>((acc, val) => {
+  acc[val.toLowerCase()] = undefined
+  return acc
+}, {})
+
 export const bitfieldToString = (permBitfield: number) => {
   const currentPermissions: string[] = []
   const permissionUpper = Math.floor(permBitfield / 0x100000000)

@@ -9,12 +9,12 @@
 [x] Development tools (linting, formatting)
 [x] More accurately validate API types (length, forbidden chars)
 [x] Lua type hinting (teal support?)
+[x] Config linting for bad practice
+[x] Implement effective permission inheritance
 [ ] Tests - [ ] CI - [x] Local
 [ ] Increase stability, add checks and balances
 [ ] Lua utils for making configs
-[ ] Implement effective permission inheritance
 [ ] Report invalid / contradictory configs
-[ ] Config linting for bad practice
 [ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
 [ ] Zod parsing for lualib

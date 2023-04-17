@@ -1,7 +1,7 @@
 type ConfigVisitorScope = 'roles' | 'channels'
 interface ConfigVisitor {
   scope: ConfigVisitorScope,
-  callback: (...args: any[]) => any
+  callback: (...args: unknown[]) => unknown
 }
 
 const LibState = {

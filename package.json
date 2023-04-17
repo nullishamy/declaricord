@@ -12,6 +12,8 @@
     "build:watch": "tsc --watch --preserveWatchOutput",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "npm run test -- --watch",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "npm run lint -- --fix",
     "prepare": "husky install"
   },
   "author": "nullishamy",

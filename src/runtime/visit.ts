@@ -16,7 +16,10 @@ export const visit = wrapLib(({ visitors }, [val, scope]) => {
 
     visitors.set(scope, {
         scope,
-        callback: val as ((...args: any[]) => any)
+        // SAFE: We type check as a `Function` above. TS does not allow for conversion between
+        // Function and the functional types for some reason, so we must cast
+        // We do not do type unsafe behavior here, the resulting type is still broad enough
+        callback: val as ((...args: unknown[]) => unknown)
     })
 
     return;
@@ -32,8 +35,8 @@ export const visit = wrapLib(({ visitors }, [val, scope]) => {
                 }    
                 break;
             case 'roles':
-                for (const channel of val.globalRoles) {
-                    visitor.callback(channel)
+                for (const role of val.globalRoles) {
+                    visitor.callback(role)
                 }    
                 break
             default:

@@ -72,7 +72,17 @@ function lintRole(role: Role) {
 }
 
 function lintCategory(category: Category) {
-  return [];
+  const out = []
+  if (!category.channels.length) {
+
+    out.push({
+      identifier: `category ${category.comment} (${category.id})`,
+      message:
+        "no channels found in this category, is that intentional?",
+      severity: "info",
+    });
+  }
+  return out;
 }
 
 export function lintConfig(config: GuildConfiguration) {

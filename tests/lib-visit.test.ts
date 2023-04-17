@@ -7,7 +7,7 @@ describe("Visit (Lib)", () => {
   beforeEach(() => resetLib());
 
   const visit = luaLib.visit;
-  const noopVisitor = jest.fn()
+  const noopVisitor = jest.fn();
 
   it("sets a role visitor", () => {
     visit(noopVisitor, "roles");
@@ -48,16 +48,15 @@ describe("Visit (Lib)", () => {
     const cb = jest.fn();
     const setup = new GuildSetup("12345678989898989");
     visit(cb, "roles");
-    visit(setup)
+    visit(setup);
     expect(cb).not.toBeCalled();
   });
-
 
   it("does not execute callback without channels", () => {
     const cb = jest.fn();
     const setup = new GuildSetup("12345678989898989");
     visit(cb, "channels");
-    visit(setup)
+    visit(setup);
     expect(cb).not.toBeCalled();
   });
 
@@ -85,7 +84,7 @@ describe("Visit (Lib)", () => {
       options: {
         nsfw: false,
         slowmode: 0,
-        topic: ''
+        topic: "",
       },
       overrides: [],
     });

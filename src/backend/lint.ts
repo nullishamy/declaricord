@@ -51,8 +51,7 @@ function lintRole(role: Role) {
       if (role.permissions[perm]) {
         out.push({
           identifier: `role: ${role.comment} (${role.id})`,
-          message:
-            `the ${perm} permission is dangerous to grant to @everyone, did you mean to?`,
+          message: `the ${perm} permission is dangerous to grant to @everyone, did you mean to?`,
           severity: "warning",
         });
       }
@@ -72,13 +71,11 @@ function lintRole(role: Role) {
 }
 
 function lintCategory(category: Category) {
-  const out = []
+  const out = [];
   if (!category.channels.length) {
-
     out.push({
       identifier: `category ${category.comment} (${category.id})`,
-      message:
-        "no channels found in this category, is that intentional?",
+      message: "no channels found in this category, is that intentional?",
       severity: "info",
     });
   }

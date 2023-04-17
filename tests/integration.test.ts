@@ -49,7 +49,6 @@ describe("Integrations", () => {
     return await runTest("inheritance-role");
   });
 
-
   it("runs inheritance-category.lua", async () => {
     return await runTest("inheritance-category");
   });

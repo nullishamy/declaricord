@@ -7,14 +7,14 @@ return {
         self.global.text {
             id      = "1094801227080015882",
             comment = "global",
-            topic = "nothing"
+            topic   = "nothing"
         }
 
         self.global.voice {
-            id      = "1095430872712347779",
-            comment = "globalvoice",
-            topic = "nothing",
-            bitrate = 64000,
+            id         = "1095430872712347779",
+            comment    = "globalvoice",
+            topic      = "nothing",
+            bitrate    = 64000,
             user_limit = 0
         }
 
@@ -75,7 +75,20 @@ return {
                 self.channel.text {
                     id = "1008440520672038995",
                     comment = "general",
-                    topic = "nothing"
+                    topic = "nothing",
+
+                    overrides = {
+                        self.role {
+                            id = "1008440520168702053",
+                            comment = "@everyone"
+                        }
+                    }
+                }
+            },
+            overrides = {
+                self.role {
+                    id = "1008440520168702053",
+                    comment = "@everyone"
                 }
             }
         }

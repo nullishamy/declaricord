@@ -122,14 +122,13 @@ export class GuildBuilder {
 
               if (shouldSync) {
                 // Move the category permission setting into the channel
-                channelOverride.permissions[perm] = override.permissions[perm]
+                channelOverride.permissions[perm] = override.permissions[perm];
               }
             }
-          }
-          else {
+          } else {
             // Otherwise, we should just push the override directly
             // The channel does not declare its own version
-            channel.overrides.push(override)
+            channel.overrides.push(override);
           }
         }
       }

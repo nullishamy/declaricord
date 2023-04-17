@@ -44,42 +44,45 @@ export const Permissions: Record<string, number> = {
   USE_EMBEDDED_ACTIVITIES: 0x0000008000000000,
   MODERATE_MEMBERS: 0x0000010000000000,
   VIEW_CREATOR_MONETIZATION_ANALYTICS: 0x0000020000000000,
-  USE_SOUNDBOARD: 0x0000040000000000
-}
+  USE_SOUNDBOARD: 0x0000040000000000,
+};
 
-export const AllDisabledPerms = Object.keys(Permissions).reduce<Record<keyof typeof Permissions, boolean>>((acc, val) => {
-  acc[val.toLowerCase()] = false
-  return acc
-}, {})
+export const AllDisabledPerms = Object.keys(Permissions).reduce<
+  Record<keyof typeof Permissions, boolean>
+>((acc, val) => {
+  acc[val.toLowerCase()] = false;
+  return acc;
+}, {});
 
-
-export const AllUndefinedPerms = Object.keys(Permissions).reduce<Record<keyof typeof Permissions, undefined>>((acc, val) => {
-  acc[val.toLowerCase()] = undefined
-  return acc
-}, {})
+export const AllUndefinedPerms = Object.keys(Permissions).reduce<
+  Record<keyof typeof Permissions, undefined>
+>((acc, val) => {
+  acc[val.toLowerCase()] = undefined;
+  return acc;
+}, {});
 
 export const bitfieldToString = (permBitfield: number) => {
-  const currentPermissions: string[] = []
-  const permissionUpper = Math.floor(permBitfield / 0x100000000)
-  const permissionLower = Math.floor(permBitfield % 0x100000000)
+  const currentPermissions: string[] = [];
+  const permissionUpper = Math.floor(permBitfield / 0x100000000);
+  const permissionLower = Math.floor(permBitfield % 0x100000000);
   for (const key in Permissions) {
     if (
       (Permissions[key] >= 0x100000000 &&
         permissionUpper & Math.floor(Permissions[key] / 0x100000000)) ||
       (Permissions[key] < 0x100000000 && permissionLower & Permissions[key])
     ) {
-      currentPermissions.push(key)
+      currentPermissions.push(key);
     } else {
-      continue
+      continue;
     }
   }
-  return currentPermissions
-}
+  return currentPermissions;
+};
 
 export const stringToBitField = (permission: string) => {
   if (Permissions[permission]) {
-    return Permissions[permission]
+    return Permissions[permission];
   } else {
-    throw new Error(`Invalid bitfield ${permission}`)
+    throw new Error(`Invalid bitfield ${permission}`);
   }
-}
+};

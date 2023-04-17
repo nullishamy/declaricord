@@ -73,6 +73,6 @@ describe("Stored (Lib)", () => {
 
     stored(role);
 
-    expect(stored(role.id)).toStrictEqual(role)
+    expect(stored(role.id)).toStrictEqual(role);
   });
 });

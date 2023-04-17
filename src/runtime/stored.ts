@@ -28,4 +28,4 @@ export const stored = wrapLib(({ storedRoles }, [val]) => {
   }
 
   throw new Error(`invalid type '${typeof val}' (${JSON.stringify(val)}`);
-})
+});

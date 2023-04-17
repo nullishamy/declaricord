@@ -1,0 +1,13 @@
+src/
+samples/
+flake.*
+tests/
+dist/**/*.map
+dist/**/*.d.ts
+.direnv/**/*
+.envrc
+.eslint*
+.prettier*
+jest.config.cjs
+TODO.md
+config*.json

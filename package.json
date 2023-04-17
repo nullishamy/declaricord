@@ -4,6 +4,9 @@
   "description": "A suite of tools for declarative management of Discord permissions.",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "dcd": "./dist/index.js"
+  },
   "scripts": {
     "start": "node dist/index.js",
     "dev": "concurrently --kill-others --prefix [{name}] --names tsc,cleaner \"npm:build:watch\" \"npm:cleaner\"",

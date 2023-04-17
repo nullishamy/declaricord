@@ -17,3 +17,5 @@
 [ ] Report invalid / contradictory configs
 [ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
+[ ] Pretty zod errors
+[ ] Investigate CLI printing help when errors are thrown

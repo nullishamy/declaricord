@@ -2,19 +2,17 @@ import { AllDisabledPerms, AllUndefinedPerms } from "../backend/permissions.js";
 import { z } from "zod";
 
 const Id = z.string().regex(/^\d{17,19}$/);
-const Comment = z.string().min(1).max(100)
+const Comment = z.string().min(1).max(100);
 
 export const RoleOverride = z
   .object({
     id: Id,
     comment: Comment,
-
-    permissions: z.any(),
   })
   .catchall(z.boolean().or(z.undefined()))
   .transform((data) => {
     const { id, comment, ..._permissions } = data;
-    const nulledPermissions = { ...AllUndefinedPerms, ..._permissions}
+    const nulledPermissions = { ...AllUndefinedPerms, ..._permissions };
 
     return {
       id,
@@ -124,7 +122,8 @@ export const GuildChannelWithOpts = GuildChannel.transform((data) => {
       overrides: typedOverrides,
     };
   } else {
-    const { id, comment, nsfw, bitrate, parentId, user_limit, overrides } = data;
+    const { id, comment, nsfw, bitrate, parentId, user_limit, overrides } =
+      data;
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const typedOverrides: RoleOverride[] = !Array.isArray(overrides)
@@ -180,7 +179,7 @@ export const Category = z
       parentId: data.id,
     }));
 
-    return data
+    return data;
   });
 
 export type TextChannel = z.infer<typeof TextChannel>;

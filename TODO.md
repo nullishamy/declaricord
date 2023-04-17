@@ -17,4 +17,3 @@
 [ ] Report invalid / contradictory configs
 [ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
-[ ] Zod parsing for lualib

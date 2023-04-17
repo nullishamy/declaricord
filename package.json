@@ -1,6 +1,6 @@
 {
   "name": "declarative-discord",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A suite of tools for declarative management of Discord permissions.",
   "main": "dist/index.js",
   "type": "module",

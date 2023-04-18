@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 
 import { GuildBuilder } from "../src/frontend/api";
-import fs from "fs/promises";
 import { resetLib } from "../src/runtime/util.js";
 
-async function loadTestFile(path: string): Promise<GuildBuilder> {
-  return new GuildBuilder(await fs.readFile(`./samples/${path}.lua`, "utf-8"));
+function loadTestFile(path: string): GuildBuilder {
+  return new GuildBuilder(`./samples/${path}.lua`);
 }
 
 async function runTest(path: string) {
-  const builder = await loadTestFile(path);
+  const builder = loadTestFile(path);
   const config = await builder.evaluateConfiguration();
   expect(config).toMatchSnapshot();
 }

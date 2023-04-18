@@ -1,4 +1,4 @@
-local dc = require('discord')
+local dc = discord()
 
 return {
     id = "1008440520168702053",
@@ -78,7 +78,7 @@ return {
                     topic = "nothing",
 
                     overrides = {
-                        self.role {
+                        self.override.role {
                             id = "1008440520168702053",
                             comment = "@everyone"
                         }
@@ -86,7 +86,7 @@ return {
                 }
             },
             overrides = {
-                self.role {
+                self.override.role {
                     id = "1008440520168702053",
                     comment = "@everyone"
                 }

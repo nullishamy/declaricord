@@ -1,11 +1,18 @@
 import deepDiff, { Diff } from "deep-diff";
 import { GuildConfiguration } from "../util/schema.js";
 
+// Ignore predicates, we don't need to compare them
+const DIFF_IGNORE_KEYS = ["predicate"];
+
 export function diffConfigurations(
   localConfig: GuildConfiguration,
   discordConfig: GuildConfiguration
 ) {
-  return deepDiff(localConfig, discordConfig);
+  return deepDiff(
+    localConfig,
+    discordConfig,
+    (_, key: string) => !DIFF_IGNORE_KEYS.indexOf(key)
+  );
 }
 
 export function stringifyDiff(diff: Diff<GuildConfiguration>[]): string {

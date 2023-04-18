@@ -1,8 +1,13 @@
-import assert from "assert";
+import fs from "fs/promises";
 import { LuaFactory } from "wasmoon";
 import { z } from "zod";
 import { luaLib } from "../runtime/index.js";
 import { validated } from "../util/lua.js";
+import {
+  inheritIntoChild,
+  snowflakeSorter,
+  sortOverrides,
+} from "../util/permissions.js";
 import {
   Category,
   GuildChannelWithOpts,
@@ -45,7 +50,16 @@ export class GuildSetup {
     }),
   };
 
-  role = (tbl: unknown) => tbl;
+  override = {
+    role: (tbl: unknown) => ({
+      type: "role",
+      ...z.object({}).passthrough().parse(tbl),
+    }),
+    user: (tbl: unknown) => ({
+      type: "user",
+      ...z.object({}).passthrough().parse(tbl),
+    }),
+  };
 
   category = validated((tbl) => this.categories.push(tbl), Category);
 }
@@ -53,23 +67,20 @@ export class GuildSetup {
 export class GuildBuilder {
   static LIB_NAME = "discord";
 
-  constructor(private readonly config: string) {}
+  constructor(private readonly configPath: string) {}
 
   async evaluateConfiguration(): Promise<GuildConfiguration> {
-    // HACK: maybe find a better way to do this
-    // We hack into require to make our lib a module
-    const _require: unknown = engine.global.get("require");
-    assert(typeof _require === "function", "require was not a function");
-
-    engine.global.set("require", (maybeLibName: unknown) => {
-      if (maybeLibName === GuildBuilder.LIB_NAME) {
-        return luaLib;
-      } else {
-        return _require(maybeLibName) as unknown;
-      }
+    engine.global.set("discord", () => {
+      return luaLib;
     });
 
-    const result: unknown = await engine.doString(this.config);
+    // We must mount before executing in order to utilize a byte buffer for the content
+    // this keeps all text intact (unicode doesn't play nice otherwise)
+    await factory.mountFile(
+      this.configPath,
+      await fs.readFile(this.configPath)
+    );
+    const result: unknown = await engine.doFile(this.configPath);
 
     // Call the provided setup function after validating the shape
     const validResult = z
@@ -82,64 +93,39 @@ export class GuildBuilder {
     const setup = new GuildSetup(validResult.id);
     validResult.setup(setup);
 
-    const atEveryone = setup.globalRoles.find((r) => r.comment === "@everyone");
-
-    if (!atEveryone) {
-      throw new Error("@everyone role not declared, please declare it");
-    }
-
-    // Inherit perms from @everyone (that grant perms) in every global role
-    const applicablePerms = Object.entries(atEveryone.permissions)
-      .filter(([, enabled]) => enabled)
-      .reduce<Record<string, boolean | undefined>>((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
-
-    setup.globalRoles = setup.globalRoles.map((r) => ({
-      ...r,
-      permissions: {
-        ...r.permissions,
-        ...applicablePerms,
-      },
-    }));
-
-    // Inherit perms from categories into their children
+    // Apply inheritance rules
+    // We must do this ourselves because Discord "syncing" and "inheritance" are simply client terms
+    // The API does not acknowledge this concept
     for (const category of setup.categories) {
       for (const channel of category.channels) {
-        for (const override of category.overrides) {
-          const channelOverride = channel.overrides.find(
-            (o) => o.id === override.id
-          );
-
-          // The channel declares some override with the same ID as the category
-          // We should merge keys set to inherit from the category
-          if (channelOverride) {
-            for (const [perm, enabled] of Object.entries(
-              channelOverride.permissions
-            )) {
-              const shouldSync = enabled === undefined;
-
-              if (shouldSync) {
-                // Move the category permission setting into the channel
-                channelOverride.permissions[perm] = override.permissions[perm];
-              }
-            }
-          } else {
-            // Otherwise, we should just push the override directly
-            // The channel does not declare its own version
-            channel.overrides.push(override);
-          }
-        }
+        inheritIntoChild(category, channel);
       }
+
+      sortOverrides(category);
     }
+
+    // Apply predicate rules to local config
+    // Remote filtering will happen later
+    setup.categories.forEach((category) => {
+      category.channels = category.channels.filter((channel) => {
+        if (!channel.predicate(channel) || !category.predicate(channel)) {
+          logger.info(
+            `Dropping local channel ${channel.comment} (${channel.id}) in ${category.comment} (${category.id}), predicate failed`
+          );
+          return false;
+        }
+        return true;
+      });
+
+      return true;
+    });
+
+    setup.categories.sort(snowflakeSorter);
 
     return {
       guildId: setup.id,
-      globalChannels: setup.globalChannels.sort((a, b) =>
-        a.id.localeCompare(b.id)
-      ),
-      globalRoles: setup.globalRoles.sort((a, b) => a.id.localeCompare(b.id)),
+      globalChannels: setup.globalChannels.sort(snowflakeSorter),
+      globalRoles: setup.globalRoles.sort(snowflakeSorter),
       categories: setup.categories,
     };
   }

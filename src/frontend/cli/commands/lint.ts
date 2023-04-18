@@ -8,23 +8,26 @@ export default {
   describe: "lint the local config",
   builder: undefined,
   handler: (_: Args, app: App) => {
-    console.log("--- LINT ---");
+    logger.info("--- LINT ---");
     const diagnostics = lintConfig(app.localConfig);
 
+    const severityToLogLevel = {
+      fatal: "error",
+      warning: "warn",
+      info: "info",
+    } as const;
+
     for (const diagnostic of diagnostics) {
-      console.log(
-        diagnostic.severity.toUpperCase(),
-        "@",
-        diagnostic.identifier,
-        "::",
-        diagnostic.message
-      );
+      const logFn =
+        logger[severityToLogLevel[diagnostic.severity]].bind(logger);
+
+      logFn(`${diagnostic.identifier} :: ${diagnostic.message}`);
     }
 
     if (!diagnostics.length) {
-      console.log("No diagnostics! :D");
+      logger.info("No diagnostics! :D");
     }
 
-    console.log("--- LINT ---");
+    logger.info("--- LINT ---");
   },
 };

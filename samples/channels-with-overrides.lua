@@ -12,12 +12,12 @@ return {
             comment = "test-channel",
             topic = "a topic",
             overrides = {
-                self.role {
+                self.override.role {
                     id = "1094801227080015882",
                     comment = "mods",
                     use_vad = true
                 },
-                self.role {
+                self.override.role {
                     id = "1094801227080015882",
                     comment = "mods-2",
                     send_messages = true
@@ -30,12 +30,12 @@ return {
             comment = "test-channel-2",
             nsfw = true,
             overrides = {
-                self.role {
+                self.override.role {
                     id = "1094801227080015882",
                     comment = "mods",
                     speak = false,
                 },
-                self.role {
+                self.override.role {
                     id = "1094801227080015882",
                     comment = "mods-2",
                     priority_speaker = true
@@ -52,12 +52,12 @@ return {
 
 
             overrides = {
-                self.role {
+                self.override.role {
                     id = "1094801227080015882",
                     comment = "mods",
                     manage_messages = true
                 },
-                self.role {
+                self.override.user {
                     id = "1094801227080015882",
                     comment = "mods-2",
                     attach_files = false
@@ -71,12 +71,12 @@ return {
             slowmode = 25,
 
             overrides = {
-                self.role {
+                self.override.role {
                     id = "1094801227080015882",
                     comment = "mods",
                     manage_roles = true
                 },
-                self.role {
+                self.override.role {
                     id = "1094801227080015882",
                     comment = "mods-2",
                     move_members = true

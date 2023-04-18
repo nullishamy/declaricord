@@ -1,5 +1,4 @@
----@type Discord
-local dc = require('discord')
+local dc = discord()
 
 return {
     id = "1094801227080015882",

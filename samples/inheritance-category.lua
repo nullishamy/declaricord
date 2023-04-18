@@ -21,7 +21,7 @@ return {
                     id = "1008940520672038996",
                     comment = "no-manage",
                     overrides = {
-                        self.role {
+                        self.override.role {
                             id = "172018499005317120",
                             comment = "@everyone",
 
@@ -34,7 +34,7 @@ return {
                     id = "1008940520672038986",
                     comment = "inherit-manage",
                     overrides = {
-                        self.role {
+                        self.override.role {
                             id = "172018499005317120",
                             comment = "@everyone",
 
@@ -44,7 +44,7 @@ return {
                 }
             },
             overrides = {
-                self.role {
+                self.override.role {
                     id = "172018499005317120",
                     comment = "@everyone",
 

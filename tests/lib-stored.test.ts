@@ -5,19 +5,22 @@ describe("Stored (Lib)", () => {
   const DEFAULT_ROLE = {
     id: "42394823948909090",
     comment: "mods-2",
+    type: "role",
   };
+
+  const DEFAULT_ROLE_KEY = "default role";
 
   beforeEach(() => resetLib());
 
   const stored = luaLib.stored;
 
   it("stores one role without error", () => {
-    stored(DEFAULT_ROLE);
+    stored(DEFAULT_ROLE_KEY, DEFAULT_ROLE);
   });
 
   it("stores one role and fetches it", () => {
-    stored(DEFAULT_ROLE);
-    expect(stored(DEFAULT_ROLE.id)).toStrictEqual(DEFAULT_ROLE);
+    stored(DEFAULT_ROLE_KEY, DEFAULT_ROLE);
+    expect(stored(DEFAULT_ROLE_KEY)).toStrictEqual(DEFAULT_ROLE);
   });
 
   it("tries to store undefined", () => {
@@ -45,8 +48,8 @@ describe("Stored (Lib)", () => {
   });
 
   it("fails to store the same role twice", () => {
-    stored(DEFAULT_ROLE);
-    expect(() => stored(DEFAULT_ROLE)).toThrowError();
+    stored(DEFAULT_ROLE_KEY, DEFAULT_ROLE);
+    expect(() => stored(DEFAULT_ROLE_KEY, DEFAULT_ROLE)).toThrowError();
   });
 
   it("passes an object without an id", () => {
@@ -71,8 +74,8 @@ describe("Stored (Lib)", () => {
       manage_messages: true,
     };
 
-    stored(role);
+    stored(DEFAULT_ROLE_KEY, role);
 
-    expect(stored(role.id)).toStrictEqual(role);
+    expect(stored(DEFAULT_ROLE_KEY)).toStrictEqual(role);
   });
 });

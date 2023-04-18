@@ -3,3 +3,5 @@ node_modules/
 .direnv/
 config.json
 .eslintcache
+
+samples/tcd.lua

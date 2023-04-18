@@ -7,6 +7,7 @@ import { Config } from "./util/config.js";
 import { Args } from "./frontend/cli/interface.js";
 import { GuildConfiguration } from "./util/schema.js";
 import { parseArgs } from "./frontend/cli/index.js";
+import { initLogging } from "./util/logger.js";
 
 export interface App {
   client: Client;
@@ -19,7 +20,7 @@ const makeConfig = async (args: Args) => {
 
   if (args.config) {
     // User passed a config path
-    config = Config.parse(JSON.parse(await fs.readFile(args.config, "utf-8")));
+    config = Config.parse(JSON.parse(await fs.readFile(args.config, "utf8")));
   } else {
     // If not, assemble a config from args
     config = Config.parse({
@@ -51,12 +52,16 @@ export const wrapCommand = (
   return async (args: Args) => {
     const config = await makeConfig(args);
 
-    const builder = new GuildBuilder(
-      await fs.readFile(config.discordConfig, "utf-8")
-    );
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!global.logger) {
+      global.logger = initLogging(config);
+    }
+
+    const builder = new GuildBuilder(config.discordConfig);
     const localConfig = await builder.evaluateConfiguration();
 
     const client = new Client(localConfig.guildId, config.token);
+    await client.awaitReady();
 
     return await cb(args, {
       client,

@@ -66,6 +66,11 @@ describe("Visit (Lib)", () => {
       id: "12312312312123",
       comment: "none",
       permissions: {},
+      options: {
+        colour: 0,
+        hoisted: false,
+        mentionableByEveryone: false,
+      },
     });
 
     const cb = jest.fn();
@@ -81,6 +86,7 @@ describe("Visit (Lib)", () => {
       comment: "none",
       parentId: undefined,
       type: "text",
+      predicate: () => true,
       options: {
         nsfw: false,
         slowmode: 0,

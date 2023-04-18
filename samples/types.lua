@@ -46,17 +46,18 @@
 ---@class CategoryTable 
 ---@field id string
 ---@field comment string
----@field overrides RoleOverrideMarker[]
+---@field overrides (RoleOverrideMarker | UserOverrideMarker)[]
 ---@field channels CategoryChannelMarker[]
 
 ---@class CategoryChannelMarker
 ---@class GlobalChannelMarker
 ---@class RoleOverrideMarker
+---@class UserOverrideMarker
 
 ---@class TextChannelTable
 ---@field id string
 ---@field comment string
----@field overrides RoleOverrideMarker[]
+---@field overrides (RoleOverrideMarker | UserOverrideMarker)[]
 ---@field nsfw boolean?
 ---@field topic string?
 ---@field slowmode number?
@@ -64,7 +65,7 @@
 ---@class VoiceChannelTable
 ---@field id string
 ---@field comment string
----@field overrides RoleOverrideMarker[]
+---@field overrides (RoleOverrideMarker | UserOverrideMarker)[]
 ---@field nsfw boolean?
 ---@field bitrate number?
 ---@field user_limit number?
@@ -76,12 +77,19 @@
 ---@class RoleTable: PermissionsBase
 ---@field id string
 ---@field comment string
+---@field colour number?
+---@field mentionable boolean?
+---@field hoisted boolean?
+
+---@class UserOverrideTable: PermissionsBase
+---@field id string
+---@field comment string
 
 ---@class GuildSetup
 ---@field global { text: (fun(tbl: TextChannelTable): GlobalChannelMarker), voice: (fun(tbl: VoiceChannelTable): GlobalChannelMarker), role: (fun(tbl: RoleTable): nil) }
 ---@field category fun(tbl: CategoryTable)
 ---@field channel { text: (fun(tbl: TextChannelTable): CategoryChannelMarker), voice: (fun(tbl: VoiceChannelTable): CategoryChannelMarker) }
----@field role fun(tbl: RoleOverrideTable): RoleOverrideMarker
+---@field override { role: (fun(tbl: RoleOverrideTable): RoleOverrideMarker), user: fun(tbl: UserOverrideTable): UserOverrideMarker }
 
 --- LuaLib module ---
 --- Declare separate variants because we get passed back the validated tables
@@ -89,7 +97,7 @@
 ---@field id string
 ---@field comment string
 ---@field type "text"
----@field overrides RoleOverrideMarker[]
+---@field overrides (RoleOverrideMarker | UserOverrideMarker)[]
 ---@field options {nsfw: boolean?, topic: string?, slowmode: number?}
 ---@field permissions PermissionsBase
 
@@ -97,7 +105,7 @@
 ---@field id string
 ---@field comment string
 ---@field type "voice"
----@field overrides RoleOverrideMarker[]
+---@field overrides (RoleOverrideMarker | UserOverrideMarker)[]
 ---@field options {nsfw: boolean?, user_limit: number?, bitrate: number?}
 ---@field permissions PermissionsBase
 
@@ -106,6 +114,17 @@
 ---@field comment string
 ---@field permissions PermissionsBase
 
+---@class TableUtils
+---@field map fun(tbl: table, mapper: fun(obj: any): any)
+---@field stringify fun(tbl: any): string
+---@field stringify_pretty fun(tbl: any): string
+
 ---@class Discord
----@field stored fun(val: table|string)
+---@field stored fun(key: string, val?: RoleOverrideTable)
 ---@field visit fun(val: fun(tbl: VisitRoleTable), scope: "roles") | fun(tbl: VisitTextChannelTable | VisitVoiceChannelTable, scope: "channels") | fun(val: GuildSetup)
+---@field table TableUtils
+
+---@return Discord
+function discord()
+   error('Stub!')
+end

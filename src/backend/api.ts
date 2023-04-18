@@ -1,18 +1,28 @@
 import { REST } from "@discordjs/rest";
 import assert from "assert";
+import deepDiff from "deep-diff";
 import {
   APIChannel,
   APIGuild,
+  APIGuildVoiceChannel,
   APIOverwrite,
   APIRole,
+  APITextChannel,
+  APIUser,
   ChannelType,
+  OverwriteType,
   Routes,
 } from "discord-api-types/v10";
 import {
+  inheritIntoChild,
+  snowflakeSorter,
+  sortOverrides,
+} from "../util/permissions.js";
+import {
   Category,
   GuildChannelWithOpts,
+  Override,
   Role,
-  RoleOverride,
 } from "../util/schema.js";
 import {
   AllDisabledPerms,
@@ -25,9 +35,21 @@ export abstract class API {
   public static VERSION = "10";
 
   protected readonly rest: REST;
+  protected init = false;
+
   constructor(protected readonly guildId: string, token: string) {
     this.rest = new REST({ version: API.VERSION }).setToken(token);
   }
+
+  public isInitialised() {
+    return this.init;
+  }
+
+  protected assertInitialised() {
+    assert(this.init, "API is not ready, call initialise()!");
+  }
+
+  abstract initialise(): Promise<void>;
 
   abstract fetchGlobalChannels(): Promise<GuildChannelWithOpts[]>;
   abstract fetchRoles(): Promise<Role[]>;
@@ -39,83 +61,121 @@ export abstract class API {
 }
 
 export class APIImpl extends API {
-  private fetchedGuild: APIGuild | undefined;
-  private fetchedChannels: APIChannel[] | undefined;
+  private fetchedGuild: APIGuild;
+  private fetchedChannels: APIChannel[];
+  private fetchedUsers: APIUser[];
 
-  private mappedRoles: Record<string, APIRole> | undefined;
-  private mappedChannels: Record<string, APIChannel> | undefined;
+  private mappedRoles: Record<string, APIRole>;
+  private mappedChannels: Record<string, APIChannel>;
+  private mappedUsers: Record<string, APIUser>;
 
-  async fetchGlobalChannels(): Promise<GuildChannelWithOpts[]> {
-    const channels: APIChannel[] =
-      this.fetchedChannels ??
-      ((await this.rest.get(
-        Routes.guildChannels(this.guildId)
-      )) as APIChannel[]);
-    this.fetchedChannels = channels;
-    await this.fetchRoles();
+  async initialise(): Promise<void> {
+    this.fetchedChannels = (await this.rest.get(
+      Routes.guildChannels(this.guildId)
+    )) as APIChannel[];
 
-    this.applyMappings();
+    this.fetchedGuild = (await this.rest.get(
+      Routes.guild(this.guildId)
+    )) as APIGuild;
 
-    assert(this.mappedRoles);
-
-    const mappedRoles = this.mappedRoles;
-
-    return this.fetchedChannels
+    const usersInOverrides = this.fetchedChannels
       .filter(
         (c) =>
-          (c.type === ChannelType.GuildText ||
-            c.type === ChannelType.GuildVoice) &&
-          c.parent_id === null
+          c.type === ChannelType.GuildText || c.type === ChannelType.GuildVoice
       )
-      .map((c) => {
-        if (c.type === ChannelType.GuildText) {
-          return {
-            type: "text" as const,
-            comment: c.name,
-            id: c.id,
-            parentId: undefined,
-            options: {
-              nsfw: c.nsfw ?? false,
-              slowmode: c.rate_limit_per_user ?? 0,
-              topic: c.topic ?? undefined,
-            },
-            overrides: this.roleOverwritesToOverrides(
-              c.permission_overwrites ?? [],
-              mappedRoles
-            ),
-          };
-        }
+      .map((c) => c as APITextChannel | APIGuildVoiceChannel)
+      .flatMap((c) => c.permission_overwrites ?? [])
+      .filter((o) => o.type === OverwriteType.Member)
+      .map((m) => m.id);
 
-        if (c.type === ChannelType.GuildVoice) {
-          return {
-            type: "voice" as const,
-            comment: c.name,
-            id: c.id,
-            parentId: undefined,
-            options: {
-              nsfw: c.nsfw ?? false,
-              bitrate: c.bitrate,
-              userLimit: c.user_limit,
-            },
-            overrides: this.roleOverwritesToOverrides(
-              c.permission_overwrites ?? [],
-              mappedRoles
-            ),
-          };
-        }
+    const users = await Promise.all(
+      usersInOverrides.map((userId) => {
+        return this.rest.get(Routes.user(userId)) as Promise<APIUser>;
+      })
+    );
 
-        assert(false, "impossible");
-      });
+    const userMapping = users.reduce<Record<string, APIUser>>((acc, val) => {
+      acc[val.id] = val;
+      return acc;
+    }, {});
+
+    this.mappedUsers = userMapping;
+    this.fetchedUsers = users;
+
+    this.mappedChannels = this.fetchedChannels.reduce<
+      Record<string, APIChannel>
+    >((acc, val) => {
+      acc[val.id] = val;
+      return acc;
+    }, {});
+
+    this.mappedRoles = this.fetchedGuild.roles.reduce<Record<string, APIRole>>(
+      (acc, val) => {
+        acc[val.id] = val;
+        return acc;
+      },
+      {}
+    );
+
+    this.init = true;
   }
 
-  async fetchRoles(): Promise<Role[]> {
-    const guild =
-      this.fetchedGuild ??
-      ((await this.rest.get(Routes.guild(this.guildId))) as APIGuild);
-    this.fetchedGuild = guild;
-    this.applyMappings();
+  fetchGlobalChannels(): Promise<GuildChannelWithOpts[]> {
+    this.assertInitialised();
 
-    return (
+    return Promise.resolve(
+      this.fetchedChannels
+        .filter(
+          (c) =>
+            (c.type === ChannelType.GuildText ||
+              c.type === ChannelType.GuildVoice) &&
+            c.parent_id === null
+        )
+        .map((c) => {
+          if (c.type === ChannelType.GuildText) {
+            return {
+              type: "text" as const,
+              comment: c.name,
+              id: c.id,
+              parentId: undefined,
+              predicate: () => true,
+              options: {
+                nsfw: c.nsfw ?? false,
+                slowmode: c.rate_limit_per_user ?? 0,
+                topic: c.topic ?? undefined,
+              },
+              overrides: this.overwritesToOverrides(
+                c.permission_overwrites ?? []
+              ),
+            };
+          }
+
+          if (c.type === ChannelType.GuildVoice) {
+            return {
+              type: "voice" as const,
+              comment: c.name,
+              id: c.id,
+              predicate: () => true,
+              parentId: undefined,
+              options: {
+                nsfw: c.nsfw ?? false,
+                bitrate: c.bitrate,
+                userLimit: c.user_limit,
+              },
+              overrides: this.overwritesToOverrides(
+                c.permission_overwrites ?? []
+              ),
+            };
+          }
+
+          assert(false, "impossible");
+        })
+    );
+  }
+
+  fetchRoles(): Promise<Role[]> {
+    this.assertInitialised();
+    return Promise.resolve(
       this.fetchedGuild.roles
         // Do not include managed roles, they are controlled by other bots
         .filter((r) => !r.managed)
@@ -130,6 +190,11 @@ export class APIImpl extends API {
 
           return {
             comment: r.name,
+            options: {
+              hoisted: r.hoist,
+              colour: r.color,
+              mentionableByEveryone: r.mentionable,
+            },
             id: r.id,
             permissions,
           };
@@ -137,101 +202,140 @@ export class APIImpl extends API {
     );
   }
 
-  async fetchCategories(): Promise<Category[]> {
-    await this.fetchGlobalChannels();
-    await this.fetchRoles();
-    this.applyMappings();
+  fetchCategories(): Promise<Category[]> {
+    this.assertInitialised();
+    const { mappedChannels } = this;
 
-    assert(this.fetchedChannels);
-    assert(this.mappedRoles);
-    assert(this.mappedChannels);
+    type Accumulator = Record<string, Category>;
+    type TextOrVoice = APITextChannel | APIGuildVoiceChannel;
 
-    const { mappedRoles, mappedChannels } = this;
+    // Setup a category. This is called when we first encounter the category
+    const setupCategory = (acc: Accumulator, val: TextOrVoice) => {
+      // Validated by callers
+      assert(val.parent_id, "no parent ID set");
+      assert(!acc[val.parent_id], "category already set");
+
+      const parent = mappedChannels[val.parent_id];
+      if (parent.type !== ChannelType.GuildCategory) {
+        throw new Error(
+          `expected ChannelType.GuildCategory, got ${ChannelType[parent.type]}`
+        );
+      }
+
+      // Role overrides for the category
+      const roleOverrides: Override[] = this.overwritesToOverrides(
+        parent.permission_overwrites ?? [],
+        AllUndefinedPerms
+      );
+
+      acc[val.parent_id] = {
+        id: val.parent_id,
+        comment: parent.name,
+        predicate: () => true,
+        channels: [],
+        overrides: roleOverrides,
+      };
+    };
+
+    const setupText = (acc: Accumulator, val: APITextChannel) => {
+      // Validated by callers
+      assert(val.parent_id, "no parent ID set");
+
+      acc[val.parent_id].channels.push({
+        type: "text" as const,
+        comment: val.name,
+        id: val.id,
+        parentId: val.parent_id,
+        predicate: () => true,
+        options: {
+          nsfw: val.nsfw ?? false,
+          slowmode: val.rate_limit_per_user ?? 0,
+          topic: val.topic ?? undefined,
+        },
+        overrides: this.overwritesToOverrides(
+          val.permission_overwrites ?? [],
+          AllUndefinedPerms
+        ),
+      });
+    };
+
+    const setupVoice = (acc: Accumulator, val: APIGuildVoiceChannel) => {
+      // Validated by callers
+      assert(val.parent_id, "no parent ID set");
+
+      acc[val.parent_id].channels.push({
+        type: "voice" as const,
+        comment: val.name,
+        id: val.id,
+        predicate: () => true,
+        parentId: val.parent_id,
+        options: {
+          nsfw: val.nsfw ?? false,
+          bitrate: val.bitrate,
+          userLimit: val.user_limit,
+        },
+        overrides: this.overwritesToOverrides(
+          val.permission_overwrites ?? [],
+          AllUndefinedPerms
+        ),
+      });
+    };
+
+    const mappedCategories = this.fetchedChannels.reduce<Accumulator>(
+      (acc, val) => {
+        // Ignore other channel types
+        if (
+          !(
+            val.type === ChannelType.GuildText ||
+            val.type === ChannelType.GuildVoice
+          )
+        ) {
+          return acc;
+        }
+
+        if (!val.parent_id) {
+          return acc;
+        }
+
+        if (!(val.parent_id in acc)) {
+          setupCategory(acc, val);
+        }
+
+        if (val.type === ChannelType.GuildText) {
+          setupText(acc, val);
+        }
+
+        if (val.type === ChannelType.GuildVoice) {
+          setupVoice(acc, val);
+        }
+
+        return acc;
+      },
+      {}
+    );
 
     // It is easier to group up the channels with a mapping, but we do not need the mapping after the fact
-    return Object.values(
-      this.fetchedChannels.reduce<Record<string, Category>>((acc, val) => {
-        if (
-          val.type === ChannelType.GuildText ||
-          val.type === ChannelType.GuildVoice
-        ) {
-          if (!val.parent_id) {
-            return acc;
-          }
+    const categories = Object.values(mappedCategories);
 
-          if (!(val.parent_id in acc)) {
-            const parent = mappedChannels[val.parent_id];
-            if (parent.type !== ChannelType.GuildCategory) {
-              throw new Error(
-                `expected ChannelType.GuildCategory, got ${
-                  ChannelType[parent.type]
-                }`
-              );
-            }
+    // Apply inheritance rules
+    // We must do this ourselves because Discord "syncing" and "inheritance" are simply client terms
+    // The API does not acknowledge this concept
+    for (const category of categories) {
+      for (const channel of category.channels) {
+        inheritIntoChild(category, channel);
+      }
 
-            // Role overrides for the category
-            const roleOverrides: RoleOverride[] =
-              this.roleOverwritesToOverrides(
-                parent.permission_overwrites ?? [],
-                mappedRoles,
+      sortOverrides(category);
+    }
 
-                AllUndefinedPerms
-              );
+    categories.sort(snowflakeSorter);
 
-            acc[val.parent_id] = {
-              id: val.parent_id,
-              comment: parent.name,
-              channels: [],
-              overrides: roleOverrides,
-            };
-          }
-
-          if (val.type === ChannelType.GuildText) {
-            acc[val.parent_id].channels.push({
-              type: "text" as const,
-              comment: val.name,
-              id: val.id,
-              parentId: val.parent_id,
-              options: {
-                nsfw: val.nsfw ?? false,
-                slowmode: val.rate_limit_per_user ?? 0,
-                topic: val.topic ?? undefined,
-              },
-              overrides: this.roleOverwritesToOverrides(
-                val.permission_overwrites ?? [],
-                mappedRoles,
-                AllUndefinedPerms
-              ),
-            });
-          }
-
-          if (val.type === ChannelType.GuildVoice) {
-            acc[val.parent_id].channels.push({
-              type: "voice" as const,
-              comment: val.name,
-              id: val.id,
-              parentId: val.parent_id,
-              options: {
-                nsfw: val.nsfw ?? false,
-                bitrate: val.bitrate,
-                userLimit: val.user_limit,
-              },
-              overrides: this.roleOverwritesToOverrides(
-                val.permission_overwrites ?? [],
-                mappedRoles,
-                AllUndefinedPerms
-              ),
-            });
-          }
-        }
-        return acc;
-      }, {})
-    );
+    return Promise.resolve(categories);
   }
 
   async pushChannel(channel: GuildChannelWithOpts): Promise<void> {
     const type = channel.type;
-    let body: Record<string, unknown> = {};
+    let body = {};
 
     if (type === "voice") {
       body = {
@@ -249,25 +353,54 @@ export class APIImpl extends API {
       };
     }
 
-    body.permission_overwrites = channel.overrides.map((r) => {
-      let allow = 0n;
-      let deny = 0n;
+    const finalBody = {
+      ...body,
+      permission_overwrites: channel.overrides.map((r) => {
+        let allow = 0n;
+        let deny = 0n;
 
-      for (const [perm, enabled] of Object.entries(r.permissions)) {
-        if (enabled) {
-          allow = allow | BigInt(stringToBitField(perm.toUpperCase()));
-        } else {
-          deny = deny | BigInt(stringToBitField(perm.toUpperCase()));
+        for (const [perm, enabled] of Object.entries(r.permissions)) {
+          if (enabled === true) {
+            allow = allow | BigInt(stringToBitField(perm.toUpperCase()));
+          } else if (enabled === false) {
+            deny = deny | BigInt(stringToBitField(perm.toUpperCase()));
+          }
+          // Fall through for undefined (inherit)
         }
-      }
 
-      return {
-        id: r.id,
-        type: 0, // Always role overrides,
-        allow: allow.toString(),
-        deny: deny.toString(),
-      };
-    });
+        return {
+          id: r.id,
+          type: r.type === "role" ? 0 : 1,
+          allow: allow.toString(),
+          deny: deny.toString(),
+        };
+      }),
+    };
+
+    finalBody.permission_overwrites.sort(snowflakeSorter);
+    const mappedChannel = this.mappedChannels[channel.id];
+
+    assert(
+      mappedChannel.type === ChannelType.GuildText ||
+        mappedChannel.type === ChannelType.GuildVoice ||
+        mappedChannel.type === ChannelType.GuildCategory
+    );
+
+    mappedChannel.permission_overwrites?.sort(snowflakeSorter);
+
+    const diff = deepDiff(
+      finalBody.permission_overwrites,
+      mappedChannel.permission_overwrites ?? []
+    );
+
+    if (!diff) {
+      logger.debug(
+        `Skipping channel ${channel.comment} (${channel.id}), no changes`
+      );
+      return;
+    }
+
+    logger.info(`Pushing channel: ${channel.comment}`);
 
     await this.rest.patch(Routes.channel(channel.id), {
       body,
@@ -277,26 +410,46 @@ export class APIImpl extends API {
   async pushCategory(category: Category): Promise<void> {
     const body = {
       name: category.comment,
-      permission_overwrites: category.overrides.map((r) => {
-        let allow = 0n;
-        let deny = 0n;
+      permission_overwrites: category.overrides
+        .map((r) => {
+          let allow = 0n;
+          let deny = 0n;
 
-        for (const [perm, enabled] of Object.entries(r.permissions)) {
-          if (enabled) {
-            allow = allow | BigInt(stringToBitField(perm.toUpperCase()));
-          } else {
-            deny = deny | BigInt(stringToBitField(perm.toUpperCase()));
+          for (const [perm, enabled] of Object.entries(r.permissions)) {
+            if (enabled === true) {
+              allow = allow | BigInt(stringToBitField(perm.toUpperCase()));
+            } else if (enabled === false) {
+              deny = deny | BigInt(stringToBitField(perm.toUpperCase()));
+            }
           }
-        }
 
-        return {
-          id: r.id,
-          type: 0, // Always role overrides,
-          allow: allow.toString(),
-          deny: deny.toString(),
-        };
-      }),
+          return {
+            id: r.id,
+            type: r.type === "role" ? 0 : 1,
+            allow: allow.toString(),
+            deny: deny.toString(),
+          };
+        })
+        .sort(snowflakeSorter),
     };
+
+    const mappedChannel = this.mappedChannels[category.id];
+    assert(mappedChannel.type === ChannelType.GuildCategory);
+    mappedChannel.permission_overwrites?.sort(snowflakeSorter);
+
+    const diff = deepDiff(
+      body.permission_overwrites,
+      mappedChannel.permission_overwrites ?? []
+    );
+
+    if (!diff) {
+      logger.debug(
+        `Skipping category ${category.comment} (${category.id}), no changes`
+      );
+      return;
+    }
+
+    logger.info(`Pushing category: ${category.comment}`);
 
     await this.rest.patch(Routes.channel(category.id), {
       body,
@@ -304,6 +457,7 @@ export class APIImpl extends API {
   }
 
   async pushRole(role: Role): Promise<void> {
+    this.assertInitialised();
     let permissions = 0n;
 
     for (const [perm, enabled] of Object.entries(role.permissions)) {
@@ -314,19 +468,37 @@ export class APIImpl extends API {
       }
     }
 
+    const mappedRole = this.mappedRoles[role.id];
+
+    if (
+      mappedRole.permissions === permissions.toString() &&
+      mappedRole.hoist === role.options.hoisted &&
+      mappedRole.color === role.options.colour &&
+      mappedRole.mentionable === role.options.mentionableByEveryone
+    ) {
+      logger.debug(`Skipping role ${role.comment} (${role.id}), no changes`);
+      return;
+    }
+
+    logger.info(`Pushing role: ${role.comment}`);
+
     await this.rest.patch(Routes.guildRole(this.guildId, role.id), {
       body: {
         name: role.comment,
         permissions: permissions.toString(),
+
+        hoist: role.options.hoisted,
+        color: role.options.colour,
+        mentionable: role.options.mentionableByEveryone,
       },
     });
   }
 
-  private roleOverwritesToOverrides(
+  private overwritesToOverrides(
     overwrites: APIOverwrite[],
-    roleMapping: Record<string, APIRole>,
     defaults: Record<string, boolean | undefined> = {}
-  ): RoleOverride[] {
+  ): Override[] {
+    this.assertInitialised();
     return overwrites
       .map((p) => {
         const allowed = bitfieldToString(Number(p.allow)).reduce<
@@ -343,32 +515,20 @@ export class APIImpl extends API {
           return acc;
         }, {});
 
+        // TODO: Clean this up
         return {
           id: p.id,
-          comment: roleMapping[p.id].name,
+          type:
+            p.type === OverwriteType.Member
+              ? ("user" as const)
+              : ("role" as const),
+          comment:
+            p.type === OverwriteType.Member
+              ? this.mappedUsers[p.id].username
+              : this.mappedRoles[p.id].name,
           permissions: { ...defaults, ...allowed, ...denied },
         };
       })
-      .sort((a, b) => a.id.localeCompare(b.id));
-  }
-
-  private applyMappings() {
-    assert(this.fetchedChannels);
-    assert(this.fetchedGuild);
-
-    this.mappedChannels = this.fetchedChannels.reduce<
-      Record<string, APIChannel>
-    >((acc, val) => {
-      acc[val.id] = val;
-      return acc;
-    }, {});
-
-    this.mappedRoles = this.fetchedGuild.roles.reduce<Record<string, APIRole>>(
-      (acc, val) => {
-        acc[val.id] = val;
-        return acc;
-      },
-      {}
-    );
+      .sort(snowflakeSorter);
   }
 }

@@ -7,14 +7,12 @@ export default {
   describe: "push the config to discord",
   builder: undefined,
   handler: async (_args: Args, app: App) => {
-    if (app.config.verbosity >= 1) {
-      console.log("--- CONFIG ---");
-      console.log(JSON.stringify(app.localConfig, undefined, 2));
-      console.log("--- CONFIG ---");
-    }
+    logger.debug("--- CONFIG ---");
+    logger.debug(JSON.stringify(app.localConfig, undefined, 2));
+    logger.debug("--- CONFIG ---");
 
-    console.log("... Pushing ...");
+    logger.info("... Pushing ...");
     await app.client.push(app.localConfig);
-    console.log("Done!");
+    logger.info("Done!");
   },
 };

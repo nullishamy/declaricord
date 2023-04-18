@@ -13,7 +13,8 @@ return {
             id = "1094801227080015882",
             comment = "@everyone",
 
-            moderate_members = true
+            moderate_members = true,
+            manage_channels = true
         }
 
         self.global.text {

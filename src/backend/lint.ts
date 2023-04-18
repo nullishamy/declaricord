@@ -10,11 +10,11 @@ export type LintSeverity = "info" | "warning" | "fatal";
 export interface LintEntry {
   identifier: string;
   message: string;
-  severity: LintEntry;
+  severity: LintSeverity;
 }
 
 function lintChannel(channel: GuildChannelWithOpts) {
-  const out = [];
+  const out: LintEntry[] = [];
 
   if (channel.type === "text") {
     if (!channel.options.topic) {
@@ -31,13 +31,13 @@ function lintChannel(channel: GuildChannelWithOpts) {
 }
 
 function lintRole(role: Role) {
-  const out = [];
+  const out: LintEntry[] = [];
 
   if (role.comment === "@everyone") {
     // Warn about administrative permissions on @everyone
     const dangerousEveryonePerms = [
       "manage_channels",
-      "manage_server",
+      "manage_guild",
       "manage_messages",
       "manage_roles",
       "manage_webhooks",
@@ -71,7 +71,7 @@ function lintRole(role: Role) {
 }
 
 function lintCategory(category: Category) {
-  const out = [];
+  const out: LintEntry[] = [];
   if (!category.channels.length) {
     out.push({
       identifier: `category ${category.comment} (${category.id})`,
@@ -82,10 +82,21 @@ function lintCategory(category: Category) {
   return out;
 }
 
-export function lintConfig(config: GuildConfiguration) {
-  return [
+export function lintConfig(config: GuildConfiguration): LintEntry[] {
+  const lints = [
     ...config.globalRoles.map(lintRole).flat(),
     ...config.globalChannels.map(lintChannel).flat(),
     ...config.categories.map(lintCategory).flat(),
   ];
+  const atEveryone = config.globalRoles.find((r) => r.comment === "@everyone");
+
+  if (!atEveryone) {
+    lints.push({
+      identifier: `role: @everyone`,
+      message: `the @everyone role is not defined, you should define it`,
+      severity: "fatal",
+    });
+  }
+
+  return lints;
 }

@@ -15,6 +15,7 @@ exports[`Integrations runs categories.lua 1`] = `
           },
           "overrides": [],
           "parentId": "1094801227080015882",
+          "predicate": [Function],
           "type": "text",
         },
         {
@@ -27,12 +28,14 @@ exports[`Integrations runs categories.lua 1`] = `
           },
           "overrides": [],
           "parentId": "1094801227080015882",
+          "predicate": [Function],
           "type": "voice",
         },
       ],
       "comment": "a-category",
       "id": "1094801227080015882",
       "overrides": [],
+      "predicate": [Function],
     },
     {
       "channels": [
@@ -46,6 +49,7 @@ exports[`Integrations runs categories.lua 1`] = `
           },
           "overrides": [],
           "parentId": "1094801227080015882",
+          "predicate": [Function],
           "type": "text",
         },
         {
@@ -58,12 +62,14 @@ exports[`Integrations runs categories.lua 1`] = `
           },
           "overrides": [],
           "parentId": "1094801227080015882",
+          "predicate": [Function],
           "type": "voice",
         },
       ],
       "comment": "another-category",
       "id": "1094801227080015882",
       "overrides": [],
+      "predicate": [Function],
     },
   ],
   "globalChannels": [],
@@ -71,6 +77,11 @@ exports[`Integrations runs categories.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -136,6 +147,7 @@ exports[`Integrations runs channels.lua 1`] = `
       },
       "overrides": [],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
     {
@@ -148,6 +160,7 @@ exports[`Integrations runs channels.lua 1`] = `
       },
       "overrides": [],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "voice",
     },
     {
@@ -160,6 +173,7 @@ exports[`Integrations runs channels.lua 1`] = `
       },
       "overrides": [],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
     {
@@ -172,6 +186,7 @@ exports[`Integrations runs channels.lua 1`] = `
       },
       "overrides": [],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
   ],
@@ -179,6 +194,11 @@ exports[`Integrations runs channels.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -291,6 +311,7 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
         {
           "comment": "mods-2",
@@ -340,9 +361,11 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
       ],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
     {
@@ -402,6 +425,7 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
         {
           "comment": "mods-2",
@@ -451,9 +475,11 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
       ],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "voice",
     },
     {
@@ -513,6 +539,7 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
         {
           "comment": "mods-2",
@@ -562,9 +589,11 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "user",
         },
       ],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
     {
@@ -624,6 +653,7 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
         {
           "comment": "mods-2",
@@ -673,9 +703,11 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
       ],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
   ],
@@ -683,6 +715,11 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -796,9 +833,11 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
                 "view_creator_monetization_analytics": undefined,
                 "view_guild_insights": undefined,
               },
+              "type": "role",
             },
           ],
           "parentId": "1008440520672038994",
+          "predicate": [Function],
           "type": "text",
         },
         {
@@ -858,9 +897,11 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
                 "view_creator_monetization_analytics": undefined,
                 "view_guild_insights": undefined,
               },
+              "type": "role",
             },
           ],
           "parentId": "1008440520672038994",
+          "predicate": [Function],
           "type": "text",
         },
         {
@@ -920,9 +961,11 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
                 "view_creator_monetization_analytics": undefined,
                 "view_guild_insights": undefined,
               },
+              "type": "role",
             },
           ],
           "parentId": "1008440520672038994",
+          "predicate": [Function],
           "type": "text",
         },
       ],
@@ -977,8 +1020,10 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
       ],
+      "predicate": [Function],
     },
   ],
   "globalChannels": [],
@@ -986,6 +1031,11 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1045,6 +1095,11 @@ exports[`Integrations runs inheritance-role.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1094,6 +1149,11 @@ exports[`Integrations runs inheritance-role.lua 1`] = `
     {
       "comment": "inherits",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1107,7 +1167,7 @@ exports[`Integrations runs inheritance-role.lua 1`] = `
         "deafen_members": false,
         "embed_links": false,
         "kick_members": false,
-        "manage_channels": true,
+        "manage_channels": false,
         "manage_events": false,
         "manage_guild": false,
         "manage_guild_expressions": false,
@@ -1153,6 +1213,11 @@ exports[`Integrations runs lib-minimal.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1265,9 +1330,11 @@ exports[`Integrations runs lib-roles.lua 1`] = `
             "view_creator_monetization_analytics": undefined,
             "view_guild_insights": undefined,
           },
+          "type": "role",
         },
       ],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
   ],
@@ -1275,6 +1342,11 @@ exports[`Integrations runs lib-roles.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1334,6 +1406,11 @@ exports[`Integrations runs lib-visit.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "1094801227080015882",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1399,6 +1476,7 @@ exports[`Integrations runs lint-fails.lua 1`] = `
       },
       "overrides": [],
       "parentId": undefined,
+      "predicate": [Function],
       "type": "text",
     },
   ],
@@ -1406,6 +1484,11 @@ exports[`Integrations runs lint-fails.lua 1`] = `
     {
       "comment": "a-role",
       "id": "1094801227080015882",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": true,
@@ -1429,7 +1512,7 @@ exports[`Integrations runs lint-fails.lua 1`] = `
         "manage_threads": false,
         "manage_webhooks": false,
         "mention_everyone": false,
-        "moderate_members": true,
+        "moderate_members": false,
         "move_members": false,
         "mute_members": false,
         "priority_speaker": false,
@@ -1455,6 +1538,11 @@ exports[`Integrations runs lint-fails.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "1094801227080015882",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1468,7 +1556,7 @@ exports[`Integrations runs lint-fails.lua 1`] = `
         "deafen_members": false,
         "embed_links": false,
         "kick_members": false,
-        "manage_channels": false,
+        "manage_channels": true,
         "manage_events": false,
         "manage_guild": false,
         "manage_guild_expressions": false,
@@ -1514,6 +1602,11 @@ exports[`Integrations runs minimal.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "172018499005317120",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1573,6 +1666,11 @@ exports[`Integrations runs roles.lua 1`] = `
     {
       "comment": "@everyone",
       "id": "1094801227080015882",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1622,6 +1720,11 @@ exports[`Integrations runs roles.lua 1`] = `
     {
       "comment": "another-test-role",
       "id": "1094801227080015882",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,
@@ -1671,6 +1774,11 @@ exports[`Integrations runs roles.lua 1`] = `
     {
       "comment": "another-another-test-role",
       "id": "1094801227080015882",
+      "options": {
+        "colour": 0,
+        "hoisted": false,
+        "mentionableByEveryone": false,
+      },
       "permissions": {
         "add_reactions": false,
         "administrator": false,

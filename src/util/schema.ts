@@ -46,7 +46,6 @@ export const Override = z.union([UserOverride, RoleOverride]);
 export type Override = z.infer<typeof Override>;
 
 const OverrideArray = z.union([z.array(Override), z.object({})]).default([]);
-
 type OverrideArray = z.infer<typeof OverrideArray>;
 
 export const VoiceChannel = z.object({

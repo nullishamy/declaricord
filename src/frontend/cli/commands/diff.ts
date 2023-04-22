@@ -9,6 +9,8 @@ export default {
   describe: "diff the local and remote configs",
   builder: undefined,
   handler: async (_args: Args, app: App) => {
+    await app.client.awaitReady();
+
     const remoteConfig = await app.client.pull(app.localConfig.guildId);
     applyPredicatesToRemote(app.localConfig, remoteConfig);
     logger.info("--- DIFF ---");

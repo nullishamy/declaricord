@@ -403,7 +403,7 @@ export class APIImpl extends API {
     logger.info(`Pushing channel: ${channel.comment}`);
 
     await this.rest.patch(Routes.channel(channel.id), {
-      body,
+      body: finalBody,
     });
   }
 
@@ -437,12 +437,12 @@ export class APIImpl extends API {
     assert(mappedChannel.type === ChannelType.GuildCategory);
     mappedChannel.permission_overwrites?.sort(snowflakeSorter);
 
-    const diff = deepDiff(
+    const catOverrides = deepDiff(
       body.permission_overwrites,
       mappedChannel.permission_overwrites ?? []
     );
 
-    if (!diff) {
+    if (!catOverrides) {
       logger.debug(
         `Skipping category ${category.comment} (${category.id}), no changes`
       );

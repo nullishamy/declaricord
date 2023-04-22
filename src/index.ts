@@ -63,7 +63,7 @@ export const wrapCommand = (
       const localConfig = await builder.evaluateConfiguration();
 
       const client = new Client(localConfig.guildId, config.token);
-      await client.awaitReady();
+
       return await cb(args, {
         client,
         config,

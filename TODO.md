@@ -21,10 +21,10 @@
 [x] Do not push unchanged objects
 [x] Increase stability, add checks and balances
 [x] Pretty zod errors
+[x] Better diff visualisation (object view)
+[x] Investigate CLI printing help when errors are thrown
 [ ] Tests - [ ] CI - [x] Local
 [ ] Lua utils for making configs
-[ ] Report invalid / contradictory configs
-[ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
-[ ] Investigate CLI printing help when errors are thrown
+[ ] Report invalid / contradictory configs
 [ ] Teal support? Teal as a superset?

@@ -1,5 +1,8 @@
-import fs from "fs/promises";
-import { LuaFactory } from "wasmoon";
+import assert, { deepStrictEqual } from "assert";
+import fsp from "fs/promises";
+import fs from "fs";
+import path from "path";
+import { LuaFactory, LuaWasm } from "wasmoon";
 import { z } from "zod";
 import { luaLib } from "../runtime/index.js";
 import { validated } from "../util/lua.js";
@@ -74,11 +77,43 @@ export class GuildBuilder {
       return luaLib;
     });
 
+    // wasmoon uses a virtual fs, so we should load all lua around the entrypoint
+    // so it can be seen by the runtime
+    const luawasm = await factory.getLuaModule();
+    const base = path.resolve(path.dirname(this.configPath));
+
+    const resolveLuaIn = async (dir: string, luaDir = "./") => {
+      const dirContents = await fsp.readdir(dir, {
+        withFileTypes: true,
+      });
+
+      for (const entry of dirContents) {
+        if (entry.isDirectory()) {
+          luawasm.module.FS.mkdir(entry.name);
+          await resolveLuaIn(
+            path.resolve(base, entry.name),
+            path.join(luaDir, entry.name)
+          );
+        }
+
+        if (!entry.name.endsWith(".lua")) {
+          continue;
+        }
+
+        luawasm.module.FS.writeFile(
+          path.join(luaDir, entry.name),
+          await fsp.readFile(path.resolve(dir, entry.name))
+        );
+      }
+    };
+
+    await resolveLuaIn(base);
+
     // We must mount before executing in order to utilize a byte buffer for the content
     // this keeps all text intact (unicode doesn't play nice otherwise)
     await factory.mountFile(
       this.configPath,
-      await fs.readFile(this.configPath)
+      await fsp.readFile(this.configPath)
     );
     const result: unknown = await engine.doFile(this.configPath);
 

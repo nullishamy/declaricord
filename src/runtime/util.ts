@@ -1,5 +1,4 @@
 import { ZodError } from "zod";
-import { fromZodError } from "zod-validation-error";
 import { prettyZodError } from "../util/error.js";
 
 type ConfigVisitorScope = "roles" | "channels";

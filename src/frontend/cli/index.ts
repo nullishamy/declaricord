@@ -70,7 +70,10 @@ export const parseArgs = async () => {
       wrapCommand(dump.handler)
     )
     .help()
-    .demandCommand()
+    .demandCommand(
+      1,
+      `need a command! specify 'lint', 'pull', 'push', 'diff' or 'dump'`
+    )
     .wrap(null)
     .parse();
 

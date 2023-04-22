@@ -355,6 +355,7 @@ export class APIImpl extends API {
 
     const finalBody = {
       ...body,
+      parent_id: channel.parentId,
       permission_overwrites: channel.overrides.map((r) => {
         let allow = 0n;
         let deny = 0n;

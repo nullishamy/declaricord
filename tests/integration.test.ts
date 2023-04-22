@@ -1,3 +1,4 @@
+// eslint is bugged in tests, reports errors that aren't there
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 
 import { GuildBuilder } from "../src/frontend/api";

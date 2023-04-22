@@ -1,3 +1,7 @@
+import { ZodError } from "zod";
+import { fromZodError } from "zod-validation-error";
+import { prettyZodError } from "../util/error.js";
+
 type ConfigVisitorScope = "roles" | "channels";
 interface ConfigVisitor {
   scope: ConfigVisitorScope;
@@ -20,6 +24,15 @@ export const wrapLib = (
   fn: (state: typeof LibState, args: unknown[]) => unknown
 ) => {
   return (...args: unknown[]) => {
-    return fn(LibState, args);
+    try {
+      return fn(LibState, args);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        logger.error(prettyZodError(err));
+      } else {
+        logger.error(`Unexpected error:\n${err}`);
+      }
+      process.exit(1);
+    }
   };
 };

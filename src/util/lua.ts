@@ -1,5 +1,8 @@
+import { SafeParseReturnType } from "zod";
+import { prettyZodError } from "./error.js";
+
 interface AnySchema<T> {
-  parse: (data: unknown) => T;
+  safeParse: (data: unknown) => SafeParseReturnType<unknown, T>;
 }
 
 export function validated<T>(
@@ -7,6 +10,13 @@ export function validated<T>(
   schema: AnySchema<T>
 ) {
   return (luaTbl: unknown) => {
-    return callback(schema.parse(luaTbl));
+    const res = schema.safeParse(luaTbl);
+
+    if (res.success) {
+      return callback(res.data);
+    } else {
+      const err = res.error;
+      logger.error(prettyZodError(err));
+    }
   };
 }

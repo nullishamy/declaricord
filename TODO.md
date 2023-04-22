@@ -19,12 +19,12 @@
 [x] Function to fetch runtime lib rather than hacking into require
 [x] Ignore objects in diff (by name too)
 [x] Do not push unchanged objects
+[x] Increase stability, add checks and balances
+[x] Pretty zod errors
 [ ] Tests - [ ] CI - [x] Local
-[ ] Increase stability, add checks and balances
 [ ] Lua utils for making configs
 [ ] Report invalid / contradictory configs
 [ ] Better diff visualisation (object view)
 [ ] Code fix suggestions for diff errors
-[ ] Pretty zod errors
 [ ] Investigate CLI printing help when errors are thrown
 [ ] Teal support? Teal as a superset?

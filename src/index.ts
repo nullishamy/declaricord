@@ -8,6 +8,7 @@ import { Args } from "./frontend/cli/interface.js";
 import { GuildConfiguration } from "./util/schema.js";
 import { parseArgs } from "./frontend/cli/index.js";
 import { initLogging } from "./util/logger.js";
+import { DiscordAPIError } from "@discordjs/rest";
 
 export interface App {
   client: Client;
@@ -50,24 +51,34 @@ export const wrapCommand = (
   cb: (args: Args, app: App) => void | Promise<void>
 ) => {
   return async (args: Args) => {
-    const config = await makeConfig(args);
+    try {
+      const config = await makeConfig(args);
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!global.logger) {
-      global.logger = initLogging(config);
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!global.logger) {
+        global.logger = initLogging(config);
+      }
+
+      const builder = new GuildBuilder(config.discordConfig);
+      const localConfig = await builder.evaluateConfiguration();
+
+      const client = new Client(localConfig.guildId, config.token);
+      await client.awaitReady();
+      return await cb(args, {
+        client,
+        config,
+        localConfig,
+      });
+    } catch (err) {
+      if (err instanceof DiscordAPIError) {
+        logger.error(
+          `API failure on ${err.method} :: ${err.url}:\n\n${err.stack}`
+        );
+      } else {
+        logger.error(`Unexpected error:\n${err}`);
+      }
+      process.exit(1);
     }
-
-    const builder = new GuildBuilder(config.discordConfig);
-    const localConfig = await builder.evaluateConfiguration();
-
-    const client = new Client(localConfig.guildId, config.token);
-    await client.awaitReady();
-
-    return await cb(args, {
-      client,
-      config,
-      localConfig,
-    });
   };
 };
 

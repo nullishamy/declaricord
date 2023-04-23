@@ -11,6 +11,7 @@ function loadTestFile(path: string): GuildBuilder {
 async function runTest(path: string) {
   const builder = loadTestFile(path);
   const config = await builder.evaluateConfiguration();
+
   expect(config).toMatchSnapshot();
 }
 

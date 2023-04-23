@@ -1,8 +1,6 @@
-import assert, { deepStrictEqual } from "assert";
 import fsp from "fs/promises";
-import fs from "fs";
 import path from "path";
-import { LuaFactory, LuaWasm } from "wasmoon";
+import { LuaFactory } from "wasmoon";
 import { z } from "zod";
 import { luaLib } from "../runtime/index.js";
 import { validated } from "../util/lua.js";
@@ -20,9 +18,6 @@ import {
   VoiceChannelWithOpts,
 } from "../util/schema.js";
 
-const factory = new LuaFactory();
-const engine = await factory.createEngine();
-
 export class GuildSetup {
   public globalChannels: GuildChannelWithOpts[] = [];
   public globalRoles: Role[] = [];
@@ -38,7 +33,9 @@ export class GuildSetup {
     voice: validated((tbl) => {
       this.globalChannels.push(tbl);
     }, VoiceChannelWithOpts),
-    role: validated((tbl) => this.globalRoles.push(tbl), Role),
+    role: validated((tbl) => {
+      this.globalRoles.push(tbl);
+    }, Role),
   };
 
   // Category setup
@@ -73,6 +70,9 @@ export class GuildBuilder {
   constructor(private readonly configPath: string) {}
 
   async evaluateConfiguration(): Promise<GuildConfiguration> {
+    const factory = new LuaFactory();
+    const engine = await factory.createEngine();
+
     // Mount a phony `discord` file so that we can require it to load our
     // library. We must use a fake file because teal wants us to use `require` to load files
     await factory.mountFile("./discord.lua", "return discord()");
@@ -115,6 +115,7 @@ export class GuildBuilder {
     await resolveLuaIn(base);
 
     const teal = await fsp.readFile("./teal-compiler/tl.lua");
+
     await factory.mountFile("./tl.lua", teal);
     await engine.doString(`require("tl").loader()`);
 

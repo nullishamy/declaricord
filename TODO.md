@@ -23,8 +23,8 @@
 [x] Pretty zod errors
 [x] Better diff visualisation (object view)
 [x] Investigate CLI printing help when errors are thrown
+[x] Teal support? Teal as a superset?
 [ ] Tests - [ ] CI - [x] Local
 [ ] Lua utils for making configs
 [ ] Code fix suggestions for diff errors
 [ ] Report invalid / contradictory configs
-[ ] Teal support? Teal as a superset?

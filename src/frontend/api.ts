@@ -73,6 +73,11 @@ export class GuildBuilder {
   constructor(private readonly configPath: string) {}
 
   async evaluateConfiguration(): Promise<GuildConfiguration> {
+    // Mount a phony `discord` file so that we can require it to load our
+    // library. We must use a fake file because teal wants us to use `require` to load files
+    await factory.mountFile("./discord.lua", "return discord()");
+
+    // ..then use that call to return our lib into lua
     engine.global.set("discord", () => {
       return luaLib;
     });
@@ -96,7 +101,7 @@ export class GuildBuilder {
           );
         }
 
-        if (!entry.name.endsWith(".lua")) {
+        if (!(entry.name.endsWith(".lua") || entry.name.endsWith(".tl"))) {
           continue;
         }
 
@@ -109,13 +114,20 @@ export class GuildBuilder {
 
     await resolveLuaIn(base);
 
+    const teal = await fsp.readFile("./teal-compiler/tl.lua");
+    await factory.mountFile("./tl.lua", teal);
+    await engine.doString(`require("tl").loader()`);
+
     // We must mount before executing in order to utilize a byte buffer for the content
     // this keeps all text intact (unicode doesn't play nice otherwise)
-    await factory.mountFile(
-      this.configPath,
-      await fsp.readFile(this.configPath)
-    );
-    const result: unknown = await engine.doFile(this.configPath);
+
+    // Hard coding init.lua is okay because nothing will be able to import us
+    // you'd have circular dependencies otherwise
+
+    // This makes it easier to get teal injected because the root isn't shifting about
+    await factory.mountFile("./init.lua", await fsp.readFile(this.configPath));
+
+    const result: unknown = await engine.doString(`return require("init")`);
 
     // Call the provided setup function after validating the shape
     const validResult = z

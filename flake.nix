@@ -13,6 +13,7 @@
         packages = with pkgs; [
           nodejs-16_x
           nodePackages.npm
+          luajitPackages.tl
         ];
       };
   });

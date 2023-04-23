@@ -1,0 +1,3 @@
+[submodule "teal-compiler"]
+	path = teal-compiler
+	url = https://github.com/teal-language/tl

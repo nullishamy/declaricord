@@ -1,5 +1,5 @@
-import { luaLib } from "../src/runtime/index.js";
-import { resetLib } from "../src/runtime/util.js";
+import { luaLib } from "../src/support/index.js";
+import { resetLib } from "../src/support/util.js";
 
 describe("Stored (Lib)", () => {
   const DEFAULT_ROLE = {

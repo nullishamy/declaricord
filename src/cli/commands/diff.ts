@@ -1,7 +1,7 @@
+import { diffConfigurations } from "../../backend/diff.js";
+import { App } from "../../index.js";
+import { applyPredicatesToRemote } from "../../util/filter.js";
 import { Args } from "../interface.js";
-import { diffConfigurations } from "../../../backend/diff.js";
-import { App } from "../../../index.js";
-import { applyPredicatesToRemote } from "../../../util/filter.js";
 
 export default {
   command: ["diff"],
@@ -13,6 +13,7 @@ export default {
 
     const remoteConfig = await app.client.pull(app.localConfig.guildId);
     applyPredicatesToRemote(app.localConfig, remoteConfig);
+
     logger.info("--- DIFF ---");
     logger.info(diffConfigurations(app.localConfig, remoteConfig));
     logger.info("--- DIFF ---");

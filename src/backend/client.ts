@@ -1,11 +1,8 @@
 import { GuildConfiguration } from "../util/schema.js";
-import { API, APIImpl } from "./api.js";
+import { API } from "./interface.js";
 
 export class Client {
-  private readonly api: API;
-  constructor(guildId: string, token: string) {
-    this.api = new APIImpl(guildId, token);
-  }
+  constructor(private readonly api: API) {}
 
   async awaitReady() {
     await this.api.initialise();

@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
 import { Client } from "./backend/client.js";
-import { GuildBuilder } from "./frontend/api.js";
 import fs from "fs/promises";
 import { Config } from "./util/config.js";
-import { Args } from "./frontend/cli/interface.js";
+import { Args } from "./cli/interface.js";
 import { GuildConfiguration } from "./util/schema.js";
-import { parseArgs } from "./frontend/cli/index.js";
+import { parseArgs } from "./cli/index.js";
 import { initLogging } from "./util/logger.js";
 import { DiscordAPIError } from "@discordjs/rest";
+import { DiscordAPI } from "./backend/implementations/discord.js";
+import { luaFrontend } from "./frontend/implementations/lua.js";
 
 export interface App {
   client: Client;
@@ -59,10 +60,25 @@ export const wrapCommand = (
         global.logger = initLogging(config);
       }
 
-      const builder = new GuildBuilder(config.discordConfig);
-      const localConfig = await builder.evaluateConfiguration();
+      const localConfigResult = await luaFrontend.parseFromFile(
+        config.discordConfig
+      );
 
-      const client = new Client(localConfig.guildId, config.token);
+      if (!localConfigResult.success) {
+        logger.error(
+          `Failed to evaluate local config:${localConfigResult.err}`
+        );
+        process.exit(1);
+      }
+
+      const localConfig = localConfigResult.data;
+
+      const client = new Client(
+        new DiscordAPI({
+          id: localConfig.guildId,
+          token: config.token,
+        })
+      );
 
       return await cb(args, {
         client,

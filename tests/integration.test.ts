@@ -1,16 +1,8 @@
-// eslint is bugged in tests, reports errors that aren't there
-/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-
-import { GuildBuilder } from "../src/frontend/api";
-import { resetLib } from "../src/runtime/util.js";
-
-function loadTestFile(path: string): GuildBuilder {
-  return new GuildBuilder(`./samples/${path}.lua`);
-}
+import { resetLib } from "../src/support/util.js";
+import { luaFrontend } from "../src/frontend/implementations/lua.js";
 
 async function runTest(path: string) {
-  const builder = loadTestFile(path);
-  const config = await builder.evaluateConfiguration();
+  const config = await luaFrontend.parseFromFile(`./samples/${path}.lua`);
 
   expect(config).toMatchSnapshot();
 }
@@ -57,9 +49,5 @@ describe("Integrations", () => {
   // Lib
   it("runs lib-roles.lua", async () => {
     return await runTest("lib-roles");
-  });
-
-  it("runs lib-visit.lua", async () => {
-    return await runTest("lib-visit");
   });
 });

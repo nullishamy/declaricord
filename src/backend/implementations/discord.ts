@@ -17,50 +17,28 @@ import {
   inheritIntoChild,
   snowflakeSorter,
   sortOverrides,
-} from "../util/permissions.js";
+} from "../../util/permissions.js";
 import {
   Category,
   GuildChannelWithOpts,
   Override,
   Role,
-} from "../util/schema.js";
+} from "../../util/schema.js";
+import { API } from "../interface.js";
+
 import {
   AllDisabledPerms,
   AllUndefinedPerms,
   bitfieldToString,
   stringToBitField,
-} from "./permissions.js";
+} from "../permissions.js";
 
-export abstract class API {
-  public static VERSION = "10";
-
-  protected readonly rest: REST;
-  protected init = false;
-
-  constructor(protected readonly guildId: string, token: string) {
-    this.rest = new REST({ version: API.VERSION }).setToken(token);
-  }
-
-  public isInitialised() {
-    return this.init;
-  }
-
-  protected assertInitialised() {
-    assert(this.init, "API is not ready, call initialise()!");
-  }
-
-  abstract initialise(): Promise<void>;
-
-  abstract fetchGlobalChannels(): Promise<GuildChannelWithOpts[]>;
-  abstract fetchRoles(): Promise<Role[]>;
-  abstract fetchCategories(): Promise<Category[]>;
-
-  abstract pushChannel(channel: GuildChannelWithOpts): Promise<void>;
-  abstract pushCategory(category: Category): Promise<void>;
-  abstract pushRole(role: Role): Promise<void>;
+export class APISetupOptions {
+  id: string;
+  token: string;
 }
 
-export class APIImpl extends API {
+export class DiscordAPI extends API {
   private fetchedGuild: APIGuild;
   private fetchedChannels: APIChannel[];
   private fetchedUsers: APIUser[];
@@ -69,13 +47,23 @@ export class APIImpl extends API {
   private mappedChannels: Record<string, APIChannel>;
   private mappedUsers: Record<string, APIUser>;
 
+  public static API_VERSION = "10";
+  protected readonly rest: REST;
+
+  constructor(private readonly opts: APISetupOptions) {
+    super();
+    this.rest = new REST({ version: DiscordAPI.API_VERSION }).setToken(
+      opts.token
+    );
+  }
+
   async initialise(): Promise<void> {
     this.fetchedChannels = (await this.rest.get(
-      Routes.guildChannels(this.guildId)
+      Routes.guildChannels(this.opts.id)
     )) as APIChannel[];
 
     this.fetchedGuild = (await this.rest.get(
-      Routes.guild(this.guildId)
+      Routes.guild(this.opts.id)
     )) as APIGuild;
 
     const usersInOverrides = this.fetchedChannels
@@ -483,7 +471,7 @@ export class APIImpl extends API {
 
     logger.info(`Pushing role: ${role.comment}`);
 
-    await this.rest.patch(Routes.guildRole(this.guildId, role.id), {
+    await this.rest.patch(Routes.guildRole(this.opts.id, role.id), {
       body: {
         name: role.comment,
         permissions: permissions.toString(),

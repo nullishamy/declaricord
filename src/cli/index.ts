@@ -1,4 +1,3 @@
-import { wrapCommand } from "../../index.js";
 import yargs from "yargs";
 import diff from "./commands/diff.js";
 import lint from "./commands/lint.js";
@@ -6,6 +5,7 @@ import pull from "./commands/pull.js";
 import push from "./commands/push.js";
 import { Args } from "./interface.js";
 import dump from "./commands/dump.js";
+import { wrapCommand } from "../index.js";
 
 let parsed: Args | undefined;
 

@@ -28,3 +28,5 @@
 [ ] Lua utils for making configs
 [ ] Code fix suggestions for diff errors
 [ ] Report invalid / contradictory configs
+[ ] Make more frontend/backends (JSON)
+[ ] Switch frontend based on passed filetype

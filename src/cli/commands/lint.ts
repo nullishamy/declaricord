@@ -1,5 +1,5 @@
-import { lintConfig } from "../../../backend/lint.js";
-import { App } from "../../../index.js";
+import { lintConfig } from "../../backend/lint.js";
+import { App } from "../../index.js";
 import { Args } from "../interface.js";
 
 export default {

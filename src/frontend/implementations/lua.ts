@@ -1,75 +1,32 @@
-import fsp from "fs/promises";
-import path from "path";
-import { LuaFactory } from "wasmoon";
+import { Frontend } from "../interface.js";
+import {
+  Category,
+  GuildChannelWithOpts,
+  Role,
+  TextChannelWithOpts,
+  VoiceChannelWithOpts,
+} from "../../util/schema.js";
 import { z } from "zod";
-import { luaLib } from "../runtime/index.js";
-import { validated } from "../util/lua.js";
+import { validated } from "../../util/lua.js";
+import { LuaFactory } from "wasmoon";
+import { luaLib } from "../../support/index.js";
+import path from "path";
+import fsp from "fs/promises";
 import {
   inheritIntoChild,
   snowflakeSorter,
   sortOverrides,
-} from "../util/permissions.js";
-import {
-  Category,
-  GuildChannelWithOpts,
-  GuildConfiguration,
-  Role,
-  TextChannelWithOpts,
-  VoiceChannelWithOpts,
-} from "../util/schema.js";
+} from "../../util/permissions.js";
 
-export class GuildSetup {
-  public globalChannels: GuildChannelWithOpts[] = [];
-  public globalRoles: Role[] = [];
-  public categories: Category[] = [];
-
-  constructor(public readonly id: string) {}
-
-  // Orphan setup
-  global = {
-    text: validated((tbl) => {
-      this.globalChannels.push(tbl);
-    }, TextChannelWithOpts),
-    voice: validated((tbl) => {
-      this.globalChannels.push(tbl);
-    }, VoiceChannelWithOpts),
-    role: validated((tbl) => {
-      this.globalRoles.push(tbl);
-    }, Role),
-  };
-
-  // Category setup
-  channel = {
-    text: (tbl: unknown) => ({
-      type: "text",
-      ...z.object({}).passthrough().parse(tbl),
-    }),
-    voice: (tbl: unknown) => ({
-      type: "voice",
-      ...z.object({}).passthrough().parse(tbl),
-    }),
-  };
-
-  override = {
-    role: (tbl: unknown) => ({
-      type: "role",
-      ...z.object({}).passthrough().parse(tbl),
-    }),
-    user: (tbl: unknown) => ({
-      type: "user",
-      ...z.object({}).passthrough().parse(tbl),
-    }),
-  };
-
-  category = validated((tbl) => this.categories.push(tbl), Category);
-}
-
-export class GuildBuilder {
-  static LIB_NAME = "discord";
-
-  constructor(private readonly configPath: string) {}
-
-  async evaluateConfiguration(): Promise<GuildConfiguration> {
+export const luaFrontend: Frontend = {
+  name: "lua",
+  parseFromData() {
+    return Promise.resolve({
+      success: false,
+      err: new Error("Cannot parse lua from data, use parseFromFile instead"),
+    });
+  },
+  async parseFromFile(configPath) {
     const factory = new LuaFactory();
     const engine = await factory.createEngine();
 
@@ -85,7 +42,7 @@ export class GuildBuilder {
     // wasmoon uses a virtual fs, so we should load all lua around the entrypoint
     // so it can be seen by the runtime
     const luawasm = await factory.getLuaModule();
-    const base = path.resolve(path.dirname(this.configPath));
+    const base = path.resolve(path.dirname(configPath));
 
     const resolveLuaIn = async (dir: string, luaDir = "./") => {
       const dirContents = await fsp.readdir(dir, {
@@ -126,7 +83,7 @@ export class GuildBuilder {
     // you'd have circular dependencies otherwise
 
     // This makes it easier to get teal injected because the root isn't shifting about
-    await factory.mountFile("./init.lua", await fsp.readFile(this.configPath));
+    await factory.mountFile("./init.lua", await fsp.readFile(configPath));
 
     const result: unknown = await engine.doString(`return require("init")`);
 
@@ -138,7 +95,7 @@ export class GuildBuilder {
       })
       .parse(result);
 
-    const setup = new GuildSetup(validResult.id);
+    const setup = new LuaAPI();
     validResult.setup(setup);
 
     // Apply inheritance rules
@@ -171,10 +128,57 @@ export class GuildBuilder {
     setup.categories.sort(snowflakeSorter);
 
     return {
-      guildId: setup.id,
-      globalChannels: setup.globalChannels.sort(snowflakeSorter),
-      globalRoles: setup.globalRoles.sort(snowflakeSorter),
-      categories: setup.categories,
+      success: true,
+      data: {
+        guildId: validResult.id,
+        globalChannels: setup.globalChannels.sort(snowflakeSorter),
+        globalRoles: setup.globalRoles.sort(snowflakeSorter),
+        categories: setup.categories,
+      },
     };
-  }
+  },
+};
+
+export class LuaAPI {
+  public globalChannels: GuildChannelWithOpts[] = [];
+  public globalRoles: Role[] = [];
+  public categories: Category[] = [];
+
+  // Orphan setup
+  global = {
+    text: validated((tbl) => {
+      this.globalChannels.push(tbl);
+    }, TextChannelWithOpts),
+    voice: validated((tbl) => {
+      this.globalChannels.push(tbl);
+    }, VoiceChannelWithOpts),
+    role: validated((tbl) => {
+      this.globalRoles.push(tbl);
+    }, Role),
+  };
+
+  // Category setup
+  channel = {
+    text: (tbl: unknown) => ({
+      type: "text",
+      ...z.object({}).passthrough().parse(tbl),
+    }),
+    voice: (tbl: unknown) => ({
+      type: "voice",
+      ...z.object({}).passthrough().parse(tbl),
+    }),
+  };
+
+  override = {
+    role: (tbl: unknown) => ({
+      type: "role",
+      ...z.object({}).passthrough().parse(tbl),
+    }),
+    user: (tbl: unknown) => ({
+      type: "user",
+      ...z.object({}).passthrough().parse(tbl),
+    }),
+  };
+
+  category = validated((tbl) => this.categories.push(tbl), Category);
 }

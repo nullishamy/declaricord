@@ -1,5 +1,5 @@
+import { App } from "../../index.js";
 import { Args } from "../interface.js";
-import { App } from "../../../index.js";
 
 export default {
   command: ["dump"],

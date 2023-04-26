@@ -30,3 +30,10 @@
 [ ] Report invalid / contradictory configs
 [ ] Make more frontend/backends (JSON)
 [ ] Switch frontend based on passed filetype
+[ ] Support forums
+[ ] Cleanup channel filter mess
+[ ] Support user overrides in categories
+[ ] Test backend/frontend implementations for more accurate testing
+[ ] Import/export commands with different formats
+[ ] Flags for backends/frontends (default lua f/e && json b/e)
+[ ] Versioning in outputs for compatibility (semver)

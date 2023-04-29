@@ -4,6 +4,7 @@ import deepDiff from "deep-diff";
 import {
   APIChannel,
   APIGuild,
+  APIGuildForumChannel,
   APIGuildVoiceChannel,
   APIOverwrite,
   APIRole,
@@ -69,9 +70,13 @@ export class DiscordAPI extends Backend {
     const usersInOverrides = this.fetchedChannels
       .filter(
         (c) =>
-          c.type === ChannelType.GuildText || c.type === ChannelType.GuildVoice
+          c.type === ChannelType.GuildText ||
+          c.type === ChannelType.GuildVoice ||
+          c.type === ChannelType.GuildForum
       )
-      .map((c) => c as APITextChannel | APIGuildVoiceChannel)
+      .map(
+        (c) => c as APITextChannel | APIGuildVoiceChannel | APIGuildForumChannel
+      )
       .flatMap((c) => c.permission_overwrites ?? [])
       .filter((o) => o.type === OverwriteType.Member)
       .map((m) => m.id);
@@ -116,7 +121,8 @@ export class DiscordAPI extends Backend {
         .filter(
           (c) =>
             (c.type === ChannelType.GuildText ||
-              c.type === ChannelType.GuildVoice) &&
+              c.type === ChannelType.GuildVoice ||
+              c.type === ChannelType.GuildForum) &&
             c.parent_id === null
         )
         .map((c) => {
@@ -131,6 +137,8 @@ export class DiscordAPI extends Backend {
                 nsfw: c.nsfw ?? false,
                 slowmode: c.rate_limit_per_user ?? 0,
                 topic: c.topic ?? undefined,
+                defaultThreadSlowmode:
+                  c.default_thread_rate_limit_per_user ?? 0,
               },
               overrides: this.overwritesToOverrides(
                 c.permission_overwrites ?? []
@@ -150,6 +158,43 @@ export class DiscordAPI extends Backend {
                 bitrate: c.bitrate,
                 userLimit: c.user_limit,
               },
+              overrides: this.overwritesToOverrides(
+                c.permission_overwrites ?? []
+              ),
+            };
+          }
+
+          if (c.type === ChannelType.GuildForum) {
+            return {
+              type: "forum" as const,
+              comment: c.name,
+              id: c.id,
+              predicate: () => true,
+              parentId: undefined,
+              options: {
+                nsfw: c.nsfw ?? false,
+                topic: c.topic ?? undefined,
+                defaultThreadSlowmode:
+                  c.default_thread_rate_limit_per_user ?? 0,
+                slowmode: c.rate_limit_per_user ?? 0,
+              },
+              tags: c.available_tags.map((t) => ({
+                id: t.id,
+                comment: t.name,
+                emoji:
+                  t.emoji_id !== null
+                    ? t.emoji_name !== null
+                      ? {
+                          type: "unicode",
+                          value: t.emoji_name,
+                        }
+                      : {
+                          type: "custom",
+                          value: t.emoji_id,
+                        }
+                    : undefined,
+                mod_only: t.moderated,
+              })),
               overrides: this.overwritesToOverrides(
                 c.permission_overwrites ?? []
               ),
@@ -195,10 +240,13 @@ export class DiscordAPI extends Backend {
     const { mappedChannels } = this;
 
     type Accumulator = Record<string, Category>;
-    type TextOrVoice = APITextChannel | APIGuildVoiceChannel;
+    type ValidChannel =
+      | APITextChannel
+      | APIGuildVoiceChannel
+      | APIGuildForumChannel;
 
     // Setup a category. This is called when we first encounter the category
-    const setupCategory = (acc: Accumulator, val: TextOrVoice) => {
+    const setupCategory = (acc: Accumulator, val: ValidChannel) => {
       // Validated by callers
       assert(val.parent_id, "no parent ID set");
       assert(!acc[val.parent_id], "category already set");
@@ -239,6 +287,7 @@ export class DiscordAPI extends Backend {
           nsfw: val.nsfw ?? false,
           slowmode: val.rate_limit_per_user ?? 0,
           topic: val.topic ?? undefined,
+          defaultThreadSlowmode: val.default_thread_rate_limit_per_user ?? 0,
         },
         overrides: this.overwritesToOverrides(
           val.permission_overwrites ?? [],
@@ -269,15 +318,59 @@ export class DiscordAPI extends Backend {
       });
     };
 
+    const setupForum = (acc: Accumulator, val: APIGuildForumChannel) => {
+      // Validated by callers
+      assert(val.parent_id, "no parent ID set");
+
+      acc[val.parent_id].channels.push({
+        type: "forum" as const,
+        comment: val.name,
+        id: val.id,
+        predicate: () => true,
+        parentId: val.parent_id,
+        options: {
+          nsfw: val.nsfw ?? false,
+          topic: val.topic ?? undefined,
+          defaultThreadSlowmode: val.default_thread_rate_limit_per_user ?? 0,
+          slowmode: val.rate_limit_per_user ?? 0,
+        },
+        tags: val.available_tags.map((t) => ({
+          id: t.id,
+          comment: t.name,
+          emoji:
+            t.emoji_id !== null
+              ? t.emoji_name !== null
+                ? {
+                    type: "unicode",
+                    value: t.emoji_name,
+                  }
+                : {
+                    type: "custom",
+                    value: t.emoji_id,
+                  }
+              : undefined,
+          mod_only: t.moderated,
+        })),
+        overrides: this.overwritesToOverrides(val.permission_overwrites ?? []),
+      });
+    };
+
     const mappedCategories = this.fetchedChannels.reduce<Accumulator>(
       (acc, val) => {
         // Ignore other channel types
         if (
           !(
             val.type === ChannelType.GuildText ||
-            val.type === ChannelType.GuildVoice
+            val.type === ChannelType.GuildVoice ||
+            val.type === ChannelType.GuildForum
           )
         ) {
+          logger.debug(
+            `Skipping ${val.name} (${val.id}), channel type mismatch (${
+              ChannelType[val.type]
+            })`
+          );
+
           return acc;
         }
 
@@ -295,6 +388,10 @@ export class DiscordAPI extends Backend {
 
         if (val.type === ChannelType.GuildVoice) {
           setupVoice(acc, val);
+        }
+
+        if (val.type === ChannelType.GuildForum) {
+          setupForum(acc, val);
         }
 
         return acc;
@@ -332,12 +429,31 @@ export class DiscordAPI extends Backend {
         bitrate: channel.options.bitrate,
         user_limit: channel.options.userLimit,
       };
+    } else if (type === "forum") {
+      body = {
+        name: channel.comment,
+        nsfw: channel.options.nsfw,
+        topic: channel.options.topic,
+        available_tags: channel.tags.map((t) => ({
+          id: t.id,
+          name: t.comment,
+          moderated: t.mod_only,
+          emoji_id: t.emoji?.type === "custom" ? t.emoji.value : undefined,
+          emoji_name: t.emoji?.type === "unicode" ? t.emoji.value : undefined,
+        })),
+        rate_limit_per_user: channel.options.slowmode,
+        default_thread_rate_limit_per_user:
+          channel.options.defaultThreadSlowmode,
+      };
     } else {
       body = {
         name: channel.comment,
         nsfw: channel.options.nsfw,
         topic: channel.options.topic,
         slowmode: channel.options.slowmode,
+        rate_limit_per_user: channel.options.slowmode,
+        default_thread_rate_limit_per_user:
+          channel.options.defaultThreadSlowmode,
       };
     }
 
@@ -372,7 +488,9 @@ export class DiscordAPI extends Backend {
     assert(
       mappedChannel.type === ChannelType.GuildText ||
         mappedChannel.type === ChannelType.GuildVoice ||
-        mappedChannel.type === ChannelType.GuildCategory
+        mappedChannel.type === ChannelType.GuildCategory ||
+        mappedChannel.type === ChannelType.GuildForum,
+      "channel was not voice, text, category, or forum"
     );
 
     mappedChannel.permission_overwrites?.sort(snowflakeSorter);
@@ -382,7 +500,42 @@ export class DiscordAPI extends Backend {
       mappedChannel.permission_overwrites ?? []
     );
 
-    if (!diff) {
+    let shouldPush = false;
+
+    if (diff) {
+      shouldPush = true;
+    }
+
+    if (
+      (channel.type === "forum" || channel.type === "text") &&
+      (mappedChannel.type === ChannelType.GuildForum ||
+        mappedChannel.type === ChannelType.GuildText)
+    ) {
+      if (channel.options.topic !== (mappedChannel.topic ?? undefined)) {
+        shouldPush = true;
+      }
+
+      if (channel.options.nsfw !== mappedChannel.nsfw) {
+        shouldPush = true;
+      }
+
+      if (
+        channel.options.defaultThreadSlowmode !==
+        (mappedChannel.default_thread_rate_limit_per_user ?? 0)
+      ) {
+        shouldPush = true;
+      }
+
+      if (channel.options.slowmode !== mappedChannel.rate_limit_per_user) {
+        shouldPush = true;
+        console.log(
+          channel.options.slowmode,
+          mappedChannel.rate_limit_per_user
+        );
+      }
+    }
+
+    if (!shouldPush) {
       logger.debug(
         `Skipping channel ${channel.comment} (${channel.id}), no changes`
       );

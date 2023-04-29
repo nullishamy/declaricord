@@ -3,6 +3,7 @@ import { z } from "zod";
 
 const Id = z.string().regex(/^\d{17,19}$/);
 const Comment = z.string().min(1).max(100);
+const Predicate = z.function().returns(z.boolean()).optional();
 
 export const RoleOverride = z
   .object({
@@ -54,7 +55,7 @@ export const VoiceChannel = z.object({
   comment: Comment,
   type: z.literal("voice").default("voice"),
 
-  predicate: z.function().returns(z.boolean()).optional(),
+  predicate: Predicate,
   nsfw: z.boolean().default(false),
   bitrate: z.number().or(z.undefined()),
   user_limit: z.number().or(z.undefined()),
@@ -65,18 +66,55 @@ export const TextChannel = z.object({
   id: Id,
   parentId: Id.optional(),
   comment: Comment,
-  topic: z.string().max(4096).optional(),
+  topic: z.string().max(1024).optional(),
   type: z.literal("text").default("text"),
 
-  predicate: z.function().returns(z.boolean()).optional(),
+  predicate: Predicate,
   nsfw: z.boolean().default(false),
   slowmode: z.number().default(0),
   overrides: OverrideArray,
+  thread_slowmode: z.number().default(0),
+});
+
+// Snowflake of custom ID, or unicode emoji, or undefined (none)
+const TagEmoji = z.object({
+  type: z.literal("unicode").or(z.literal("custom")),
+  value: z.string().nonempty(),
+});
+
+export const ForumTag = z.object({
+  id: Id,
+  comment: z.string().max(20),
+  mod_only: z.boolean().default(false),
+  emoji: TagEmoji.optional(),
+});
+
+export const ForumChannel = z.object({
+  id: Id,
+  parentId: Id.optional(),
+  comment: Comment,
+  topic: z.string().max(4096).optional(),
+  slowmode: z.number().default(0),
+  type: z.literal("forum").default("forum"),
+  predicate: z.function().returns(z.boolean()).optional(),
+  nsfw: z.boolean().default(false),
+  overrides: OverrideArray,
+  tags: z.union([z.array(ForumTag), z.object({})]).default([]),
+  thread_slowmode: z.number().default(0),
 });
 
 export const TextChannelWithOpts = TextChannel.transform((data) => {
-  const { id, comment, topic, nsfw, parentId, predicate, slowmode, overrides } =
-    data;
+  const {
+    id,
+    comment,
+    topic,
+    nsfw,
+    parentId,
+    predicate,
+    slowmode,
+    overrides,
+    thread_slowmode,
+  } = data;
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const typedOverrides: RoleOverride[] = !Array.isArray(overrides)
@@ -93,6 +131,7 @@ export const TextChannelWithOpts = TextChannel.transform((data) => {
       nsfw,
       topic,
       slowmode,
+      defaultThreadSlowmode: thread_slowmode,
     },
     overrides: typedOverrides,
   };
@@ -130,9 +169,49 @@ export const VoiceChannelWithOpts = VoiceChannel.transform((data) => {
   };
 });
 
+export const ForumChannelWithOpts = ForumChannel.transform((data) => {
+  const {
+    id,
+    comment,
+    nsfw,
+    predicate,
+    slowmode,
+    parentId,
+    overrides,
+    tags,
+    thread_slowmode,
+    topic,
+  } = data;
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const typedOverrides: RoleOverride[] = !Array.isArray(overrides)
+    ? []
+    : overrides;
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const typedTags: ForumTag[] = !Array.isArray(tags) ? [] : tags;
+
+  return {
+    id,
+    parentId,
+    comment,
+    type: "forum" as const,
+    predicate: predicate ?? (() => true),
+    options: {
+      nsfw,
+      defaultThreadSlowmode: thread_slowmode,
+      topic,
+      slowmode,
+    },
+    overrides: typedOverrides,
+    tags: typedTags,
+  };
+});
+
 export const GuildChannel = z.discriminatedUnion("type", [
   VoiceChannel,
   TextChannel,
+  ForumChannel,
 ]);
 
 export const GuildChannelWithOpts = GuildChannel.transform((data) => {
@@ -145,6 +224,7 @@ export const GuildChannelWithOpts = GuildChannel.transform((data) => {
       predicate,
       parentId,
       slowmode,
+      thread_slowmode,
       overrides,
     } = data;
 
@@ -163,7 +243,45 @@ export const GuildChannelWithOpts = GuildChannel.transform((data) => {
         nsfw,
         topic,
         slowmode,
+        defaultThreadSlowmode: thread_slowmode,
       },
+      overrides: typedOverrides,
+    };
+  } else if (data.type === "forum") {
+    const {
+      id,
+      comment,
+      topic,
+      nsfw,
+      predicate,
+      parentId,
+      slowmode,
+      tags,
+      thread_slowmode,
+      overrides,
+    } = data;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const typedOverrides: Override[] = !Array.isArray(overrides)
+      ? []
+      : overrides;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const typedTags: ForumTag[] = !Array.isArray(tags) ? [] : tags;
+
+    return {
+      id,
+      parentId,
+      comment,
+      predicate: predicate ?? (() => true),
+      type: "forum" as const,
+      options: {
+        nsfw,
+        defaultThreadSlowmode: thread_slowmode,
+        topic,
+        slowmode,
+      },
+      tags: typedTags,
       overrides: typedOverrides,
     };
   } else {
@@ -266,12 +384,15 @@ export const GuildConfiguration = z.object({
 
 export type TextChannel = z.infer<typeof TextChannel>;
 export type VoiceChannel = z.infer<typeof VoiceChannel>;
+export type ForumChannel = z.infer<typeof ForumChannel>;
+export type ForumChannelWithOpts = z.infer<typeof ForumChannelWithOpts>;
 export type TextChannelWithOpts = z.infer<typeof TextChannelWithOpts>;
 export type VoiceChannelWithOpts = z.infer<typeof VoiceChannelWithOpts>;
 export type GuildChannel = z.infer<typeof GuildChannel>;
 export type GuildChannelWithOpts = z.infer<typeof GuildChannelWithOpts>;
 export type RoleOverride = z.infer<typeof RoleOverride>;
 export type Role = z.infer<typeof Role>;
+export type ForumTag = z.infer<typeof ForumTag>;
 export type Category = z.infer<typeof Category>;
 export type GuildConfiguration = z.infer<typeof GuildConfiguration>;
 /* eslint-enable @typescript-eslint/no-redeclare */

@@ -1,8 +1,12 @@
 import { luaLib } from "../src/support/index.js";
 import { resetLib } from "../src/support/util.js";
+import { initLogging } from "../src/util/logger.js";
 
 describe("Table (Lib)", () => {
-  beforeEach(() => resetLib());
+  beforeEach(() => {
+    global.logger = initLogging(undefined);
+    resetLib();
+  });
 
   const table = luaLib.table;
 

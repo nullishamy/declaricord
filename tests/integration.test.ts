@@ -1,14 +1,18 @@
 import { resetLib } from "../src/support/util.js";
-import { luaFrontend } from "../src/frontend/implementations/lua.js";
+import { initLogging } from "../src/util/logger.js";
+import { LuaFrontend } from "../src/frontend/implementations/lua.js";
 
 async function runTest(path: string) {
-  const config = await luaFrontend.parseFromFile(`./samples/${path}.lua`);
+  const config = await new LuaFrontend().parseFromFile(`./samples/${path}.lua`);
 
   expect(config).toMatchSnapshot();
 }
 
 describe("Integrations", () => {
-  beforeEach(() => resetLib());
+  beforeEach(() => {
+    global.logger = initLogging(undefined);
+    resetLib();
+  });
 
   it("runs minimal.lua", async () => {
     return await runTest("minimal");
@@ -44,6 +48,14 @@ describe("Integrations", () => {
 
   it("runs inheritance-category.lua", async () => {
     return await runTest("inheritance-category");
+  });
+
+  it("runs forums.lua", async () => {
+    return await runTest("forums");
+  });
+
+  it("runs forums-category.lua", async () => {
+    return await runTest("forums-category");
   });
 
   // Lib

@@ -1,6 +1,7 @@
 import { Frontend, ParseResult } from "../abstraction.js";
 import {
   Category,
+  ForumChannelWithOpts,
   GuildChannelWithOpts,
   Role,
   TextChannelWithOpts,
@@ -160,12 +161,29 @@ export class LuaAPI {
     text: validated((tbl) => {
       this.globalChannels.push(tbl);
     }, TextChannelWithOpts),
+    forum: validated((tbl) => {
+      this.globalChannels.push(tbl);
+    }, ForumChannelWithOpts),
     voice: validated((tbl) => {
       this.globalChannels.push(tbl);
     }, VoiceChannelWithOpts),
     role: validated((tbl) => {
       this.globalRoles.push(tbl);
     }, Role),
+  };
+
+  // Forum setup (emoji/tag)
+  forum = {
+    tag: (tbl: unknown) => z.object({}).passthrough().parse(tbl),
+
+    custom: (value: unknown) => ({
+      type: "custom",
+      value,
+    }),
+    unicode: (value: unknown) => ({
+      type: "unicode",
+      value,
+    }),
   };
 
   // Category setup
@@ -176,6 +194,10 @@ export class LuaAPI {
     }),
     voice: (tbl: unknown) => ({
       type: "voice",
+      ...z.object({}).passthrough().parse(tbl),
+    }),
+    forum: (tbl: unknown) => ({
+      type: "forum",
       ...z.object({}).passthrough().parse(tbl),
     }),
   };

@@ -148,7 +148,7 @@ export const wrapCommand = (
           `API failure on ${err.method} :: ${err.url}:\n\n${err.stack}`
         );
       } else {
-        logger.error(`Unexpected error:\n${err}`);
+        logger.error(`Unexpected error:\n${err}\n${(err as Error).stack}`);
       }
       process.exit(1);
     }

@@ -1,5 +1,6 @@
 import { luaLib } from "../src/support/index.js";
 import { resetLib } from "../src/support/util.js";
+import { initLogging } from "../src/util/logger.js";
 
 describe("Stored (Lib)", () => {
   const DEFAULT_ROLE = {
@@ -10,7 +11,10 @@ describe("Stored (Lib)", () => {
 
   const DEFAULT_ROLE_KEY = "default role";
 
-  beforeEach(() => resetLib());
+  beforeEach(() => {
+    global.logger = initLogging(undefined);
+    resetLib();
+  });
 
   const stored = luaLib.stored;
 

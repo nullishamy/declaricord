@@ -10,6 +10,7 @@ exports[`Integrations runs categories.lua 1`] = `
             "comment": "a-channel",
             "id": "1094801227080015882",
             "options": {
+              "defaultThreadSlowmode": 0,
               "nsfw": false,
               "slowmode": 0,
               "topic": undefined,
@@ -44,6 +45,7 @@ exports[`Integrations runs categories.lua 1`] = `
             "comment": "an-nsfw-channel",
             "id": "1094801227080015882",
             "options": {
+              "defaultThreadSlowmode": 0,
               "nsfw": true,
               "slowmode": 0,
               "topic": undefined,
@@ -145,6 +147,7 @@ exports[`Integrations runs channels.lua 1`] = `
         "comment": "test-channel",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": false,
           "slowmode": 0,
           "topic": "a topic",
@@ -171,6 +174,7 @@ exports[`Integrations runs channels.lua 1`] = `
         "comment": "test-channel-2",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": true,
           "slowmode": 25,
           "topic": undefined,
@@ -184,6 +188,7 @@ exports[`Integrations runs channels.lua 1`] = `
         "comment": "test-channel-3",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": false,
           "slowmode": 25,
           "topic": undefined,
@@ -265,6 +270,7 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
         "comment": "test-channel",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": false,
           "slowmode": 0,
           "topic": "a topic",
@@ -493,6 +499,7 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
         "comment": "test-channel-2",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": true,
           "slowmode": 25,
           "topic": undefined,
@@ -607,6 +614,7 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
         "comment": "test-channel-3",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": false,
           "slowmode": 25,
           "topic": undefined,
@@ -780,6 +788,218 @@ exports[`Integrations runs channels-with-overrides.lua 1`] = `
 }
 `;
 
+exports[`Integrations runs forums.lua 1`] = `
+{
+  "data": {
+    "categories": [],
+    "globalChannels": [
+      {
+        "comment": "the-forum",
+        "id": "172018499005317120",
+        "options": {
+          "defaultThreadSlowmode": 0,
+          "nsfw": false,
+          "slowmode": 0,
+          "topic": undefined,
+        },
+        "overrides": [],
+        "parentId": undefined,
+        "predicate": [Function],
+        "tags": [
+          {
+            "comment": "the-forum",
+            "emoji": {
+              "type": "custom",
+              "value": "172018499005317120",
+            },
+            "id": "172018499005317120",
+            "mod_only": false,
+          },
+          {
+            "comment": "the-forum",
+            "emoji": {
+              "type": "unicode",
+              "value": "🔨",
+            },
+            "id": "172018499005317120",
+            "mod_only": false,
+          },
+        ],
+        "type": "forum",
+      },
+    ],
+    "globalRoles": [
+      {
+        "comment": "@everyone",
+        "id": "172018499005317120",
+        "options": {
+          "colour": 0,
+          "hoisted": false,
+          "mentionableByEveryone": false,
+        },
+        "permissions": {
+          "add_reactions": false,
+          "administrator": false,
+          "attach_files": false,
+          "ban_members": false,
+          "change_nickname": false,
+          "connect": false,
+          "create_instant_invite": false,
+          "create_private_threads": false,
+          "create_public_threads": false,
+          "deafen_members": false,
+          "embed_links": false,
+          "kick_members": false,
+          "manage_channels": false,
+          "manage_events": false,
+          "manage_guild": false,
+          "manage_guild_expressions": false,
+          "manage_messages": false,
+          "manage_nicknames": false,
+          "manage_roles": false,
+          "manage_threads": false,
+          "manage_webhooks": false,
+          "mention_everyone": false,
+          "moderate_members": false,
+          "move_members": false,
+          "mute_members": false,
+          "priority_speaker": false,
+          "read_message_history": false,
+          "request_to_speak": false,
+          "send_messages": false,
+          "send_messages_in_threads": false,
+          "send_tts_messages": false,
+          "speak": false,
+          "stream": false,
+          "use_application_commands": false,
+          "use_embedded_activities": false,
+          "use_external_emojis": false,
+          "use_external_stickers": false,
+          "use_soundboard": false,
+          "use_vad": false,
+          "view_audit_log": false,
+          "view_channel": false,
+          "view_creator_monetization_analytics": false,
+          "view_guild_insights": false,
+        },
+      },
+    ],
+    "guildId": "1094801227080015882",
+  },
+  "success": true,
+}
+`;
+
+exports[`Integrations runs forums-category.lua 1`] = `
+{
+  "data": {
+    "categories": [
+      {
+        "channels": [
+          {
+            "comment": "the-forum",
+            "id": "172018499005317120",
+            "options": {
+              "defaultThreadSlowmode": 0,
+              "nsfw": false,
+              "slowmode": 0,
+              "topic": undefined,
+            },
+            "overrides": [],
+            "parentId": "172018499005317120",
+            "predicate": [Function],
+            "tags": [
+              {
+                "comment": "the-forum",
+                "emoji": {
+                  "type": "custom",
+                  "value": "172018499005317120",
+                },
+                "id": "172018499005317120",
+                "mod_only": false,
+              },
+              {
+                "comment": "the-forum",
+                "emoji": {
+                  "type": "unicode",
+                  "value": "🔨",
+                },
+                "id": "172018499005317120",
+                "mod_only": false,
+              },
+            ],
+            "type": "forum",
+          },
+        ],
+        "comment": "forum-cat",
+        "id": "172018499005317120",
+        "overrides": [],
+        "predicate": [Function],
+      },
+    ],
+    "globalChannels": [],
+    "globalRoles": [
+      {
+        "comment": "@everyone",
+        "id": "172018499005317120",
+        "options": {
+          "colour": 0,
+          "hoisted": false,
+          "mentionableByEveryone": false,
+        },
+        "permissions": {
+          "add_reactions": false,
+          "administrator": false,
+          "attach_files": false,
+          "ban_members": false,
+          "change_nickname": false,
+          "connect": false,
+          "create_instant_invite": false,
+          "create_private_threads": false,
+          "create_public_threads": false,
+          "deafen_members": false,
+          "embed_links": false,
+          "kick_members": false,
+          "manage_channels": false,
+          "manage_events": false,
+          "manage_guild": false,
+          "manage_guild_expressions": false,
+          "manage_messages": false,
+          "manage_nicknames": false,
+          "manage_roles": false,
+          "manage_threads": false,
+          "manage_webhooks": false,
+          "mention_everyone": false,
+          "moderate_members": false,
+          "move_members": false,
+          "mute_members": false,
+          "priority_speaker": false,
+          "read_message_history": false,
+          "request_to_speak": false,
+          "send_messages": false,
+          "send_messages_in_threads": false,
+          "send_tts_messages": false,
+          "speak": false,
+          "stream": false,
+          "use_application_commands": false,
+          "use_embedded_activities": false,
+          "use_external_emojis": false,
+          "use_external_stickers": false,
+          "use_soundboard": false,
+          "use_vad": false,
+          "view_audit_log": false,
+          "view_channel": false,
+          "view_creator_monetization_analytics": false,
+          "view_guild_insights": false,
+        },
+      },
+    ],
+    "guildId": "1094801227080015882",
+  },
+  "success": true,
+}
+`;
+
 exports[`Integrations runs inheritance-category.lua 1`] = `
 {
   "data": {
@@ -790,6 +1010,7 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
             "comment": "General",
             "id": "1008440520672038996",
             "options": {
+              "defaultThreadSlowmode": 0,
               "nsfw": false,
               "slowmode": 0,
               "topic": undefined,
@@ -854,6 +1075,7 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
             "comment": "no-manage",
             "id": "1008940520672038996",
             "options": {
+              "defaultThreadSlowmode": 0,
               "nsfw": false,
               "slowmode": 0,
               "topic": undefined,
@@ -918,6 +1140,7 @@ exports[`Integrations runs inheritance-category.lua 1`] = `
             "comment": "inherit-manage",
             "id": "1008940520672038986",
             "options": {
+              "defaultThreadSlowmode": 0,
               "nsfw": false,
               "slowmode": 0,
               "topic": undefined,
@@ -1296,6 +1519,7 @@ exports[`Integrations runs lib-roles.lua 1`] = `
         "comment": "test-channel",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": false,
           "slowmode": 0,
           "topic": "a topic",
@@ -1428,6 +1652,7 @@ exports[`Integrations runs lint-fails.lua 1`] = `
         "comment": "test-channel",
         "id": "1094801227080015882",
         "options": {
+          "defaultThreadSlowmode": 0,
           "nsfw": false,
           "slowmode": 0,
           "topic": "",

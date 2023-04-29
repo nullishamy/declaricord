@@ -12,7 +12,7 @@ export default {
     await app.client.awaitReady();
 
     logger.debug("--- CONFIG ---");
-    logger.debug(JSON.stringify(localConfig, undefined, 2));
+    // logger.debug(JSON.stringify(localConfig, undefined, 2));
     logger.debug("--- CONFIG ---");
 
     logger.info("... Pushing ...");

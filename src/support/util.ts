@@ -31,7 +31,8 @@ export const wrapLib = (
       } else {
         logger.error(`Unexpected error:\n${err}`);
       }
-      process.exit(1);
+
+      throw err;
     }
   };
 };

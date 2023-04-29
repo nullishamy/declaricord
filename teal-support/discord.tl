@@ -151,6 +151,7 @@ local record discord
      record RoleMarker end
      record CategoryMarker end
      record PermissionOverrideMarker end
+     record ForumTagMarker end
 
      record Category
         id: string
@@ -182,6 +183,7 @@ local record discord
         nsfw: boolean
         topic: string
         slowmode: number
+        thread_slowmode: number
     end
 
 
@@ -194,10 +196,28 @@ local record discord
         user_limit: number
     end
 
+    record ForumTag
+        id: string
+        comment: string
+        emoji: string
+        mod_only: boolean
+    end
+
+    record ForumChannel
+        id: string
+        comment: string
+        overrides: {PermissionOverrideMarker}
+        nsfw: boolean
+        tags: {ForumTagMarker}
+        topic: string
+        thread_slowmode: number
+    end
+
      record GuildSetup
         record global
             text: function(TextChannel): GlobalChannelMarker
             voice: function(VoiceChannel): GlobalChannelMarker
+            forum: function(ForumChannel): GlobalChannelMarker
             role: function(Role): RoleMarker
         end
 
@@ -206,6 +226,13 @@ local record discord
         record channel
             text: function(TextChannel): CategoryChannelMarker
             voice: function(VoiceChannel): CategoryChannelMarker
+            forum: function(ForumChannel): CategoryChannelMarker
+        end
+
+        record forum
+            unicode: function(string): nil
+            custom: function(string): nil
+            tag: function(ForumTag): ForumTagMarker
         end
 
         record override

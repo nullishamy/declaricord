@@ -2,16 +2,14 @@ import { App } from "../../index.js";
 import { Args } from "../interface.js";
 
 export default {
-  command: ["pull"],
+  command: ["export"],
   aliases: [],
-  describe: "pull the config from discord",
+  describe: "export the local config with the chosen backend",
   builder: undefined,
   handler: async (_args: Args, app: App) => {
-    await app.client.awaitReady();
+    // Do not use the logger here, this should be clean for piping or redirection
 
     const localConfig = await app.loadLocalConfig();
-
-    const remoteConfig = await app.client.pull(localConfig.guildId);
-    console.log(JSON.stringify(remoteConfig, undefined, 2));
+    console.log(app.backend.exportConfig(localConfig));
   },
 };

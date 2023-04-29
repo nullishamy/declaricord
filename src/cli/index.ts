@@ -4,7 +4,7 @@ import lint from "./commands/lint.js";
 import pull from "./commands/pull.js";
 import push from "./commands/push.js";
 import { Args } from "./interface.js";
-import dump from "./commands/dump.js";
+import exportCommand from "./commands/export.js";
 import { wrapCommand } from "../index.js";
 
 let parsed: Args | undefined;
@@ -28,10 +28,19 @@ export const parseArgs = async () => {
       alias: "t",
       description: "the token to use, takes priority over the config file",
     })
-    .option("discord-config", {
+    .option("input", {
       type: "string",
-      alias: "d",
-      description: "the discord config to use",
+      description: "the config path to use",
+    })
+    .option("frontend", {
+      type: "string",
+      default: "lua",
+      describe: "the frontend to parse the input with",
+    })
+    .option("backend", {
+      type: "string",
+      default: "discord",
+      describe: "the backend to push the config to",
     })
     .option("verbosity", {
       type: "count",
@@ -64,10 +73,10 @@ export const parseArgs = async () => {
       wrapCommand(diff.handler)
     )
     .command(
-      dump.command,
-      dump.describe,
+      exportCommand.command,
+      exportCommand.describe,
       defaultBuilder,
-      wrapCommand(dump.handler)
+      wrapCommand(exportCommand.handler)
     )
     .help()
     .demandCommand(

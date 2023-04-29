@@ -1,8 +1,8 @@
 import { GuildConfiguration } from "../util/schema.js";
-import { API } from "./interface.js";
+import { Backend } from "./abstraction.js";
 
 export class Client {
-  constructor(private readonly api: API) {}
+  constructor(private readonly api: Backend) {}
 
   async awaitReady() {
     await this.api.initialise();

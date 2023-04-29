@@ -1,7 +1,12 @@
 import assert from "assert";
-import { Category, GuildChannelWithOpts, Role } from "../util/schema.js";
+import {
+  Category,
+  GuildChannelWithOpts,
+  GuildConfiguration,
+  Role,
+} from "../util/schema.js";
 
-export abstract class API {
+export abstract class Backend {
   protected init = false;
 
   public isInitialised() {
@@ -10,6 +15,10 @@ export abstract class API {
 
   protected assertInitialised() {
     assert(this.init, "API is not ready, call initialise()!");
+  }
+
+  exportConfig(config: GuildConfiguration): string {
+    return JSON.stringify(config);
   }
 
   abstract initialise(): Promise<void>;

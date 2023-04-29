@@ -8,7 +8,7 @@ const defaultLoggerOptions: pino.LoggerOptions = {
   },
 };
 
-export function initLogging(config: Config): pino.Logger {
+export function initLogging(config: Config | undefined): pino.Logger {
   const loggerOptions = { ...defaultLoggerOptions };
 
   if (process.env.NODE_ENV !== "production") {
@@ -17,7 +17,7 @@ export function initLogging(config: Config): pino.Logger {
     };
   }
 
-  if (config.verbosity >= 1) {
+  if ((config?.verbosity ?? 0) >= 1) {
     loggerOptions.level = "debug";
   }
 

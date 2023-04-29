@@ -24,7 +24,7 @@ import {
   Override,
   Role,
 } from "../../util/schema.js";
-import { API } from "../interface.js";
+import { Backend } from "../abstraction.js";
 
 import {
   AllDisabledPerms,
@@ -38,7 +38,7 @@ export class APISetupOptions {
   token: string;
 }
 
-export class DiscordAPI extends API {
+export class DiscordAPI extends Backend {
   private fetchedGuild: APIGuild;
   private fetchedChannels: APIChannel[];
   private fetchedUsers: APIUser[];

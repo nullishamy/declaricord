@@ -7,9 +7,11 @@ export default {
   aliases: [],
   describe: "lint the local config",
   builder: undefined,
-  handler: (_: Args, app: App) => {
+  handler: async (_: Args, app: App) => {
+    const localConfig = await app.loadLocalConfig();
+
     logger.info("--- LINT ---");
-    const diagnostics = lintConfig(app.localConfig);
+    const diagnostics = lintConfig(localConfig);
 
     const severityToLogLevel = {
       fatal: "error",

@@ -1,4 +1,4 @@
-import { Frontend } from "../interface.js";
+import { Frontend, ParseResult } from "../abstraction.js";
 import {
   Category,
   GuildChannelWithOpts,
@@ -18,20 +18,27 @@ import {
   sortOverrides,
 } from "../../util/permissions.js";
 
-export const luaFrontend: Frontend = {
-  name: "lua",
-  parseFromData() {
+export class LuaFrontend extends Frontend {
+  parseFromData(): Promise<ParseResult> {
     return Promise.resolve({
       success: false,
-      err: new Error("Cannot parse lua from data, use parseFromFile instead"),
-    });
-  },
-  async parseFromFile(configPath) {
+      err: new Error("Cannot parse Lua from data, use parseFromFile instead"),
+    } as const);
+  }
+
+  async parseFromFile(configPath: string, force = false): Promise<ParseResult> {
+    if (this.loadedConfig && !force) {
+      return Promise.resolve({
+        success: true,
+        data: this.loadedConfig,
+      });
+    }
+
     const factory = new LuaFactory();
     const engine = await factory.createEngine();
 
     // Mount a phony `discord` file so that we can require it to load our
-    // library. We must use a fake file because teal wants us to use `require` to load files
+    // library. We must use a fake file because teal wants us to use `require` to load teal files
     await factory.mountFile("./discord.lua", "return discord()");
 
     // ..then use that call to return our lib into lua
@@ -127,7 +134,7 @@ export const luaFrontend: Frontend = {
 
     setup.categories.sort(snowflakeSorter);
 
-    return {
+    const config = {
       success: true,
       data: {
         guildId: validResult.id,
@@ -135,9 +142,13 @@ export const luaFrontend: Frontend = {
         globalRoles: setup.globalRoles.sort(snowflakeSorter),
         categories: setup.categories,
       },
-    };
-  },
-};
+    } as const;
+
+    this.loadedConfig = config.data;
+
+    return config;
+  }
+}
 
 export class LuaAPI {
   public globalChannels: GuildChannelWithOpts[] = [];

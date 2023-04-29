@@ -1,20 +1,44 @@
 #!/usr/bin/env node
 
-import { Client } from "./backend/client.js";
 import fs from "fs/promises";
 import { Config } from "./util/config.js";
 import { Args } from "./cli/interface.js";
-import { GuildConfiguration } from "./util/schema.js";
 import { parseArgs } from "./cli/index.js";
 import { initLogging } from "./util/logger.js";
 import { DiscordAPIError } from "@discordjs/rest";
 import { DiscordAPI } from "./backend/implementations/discord.js";
-import { luaFrontend } from "./frontend/implementations/lua.js";
+import { LuaFrontend } from "./frontend/implementations/lua.js";
+import { Frontend } from "./frontend/abstraction.js";
+import { Backend } from "./backend/abstraction.js";
+import { Client } from "./backend/client.js";
+import { JsonFrontend } from "./frontend/implementations/json.js";
+import { JsonBackend } from "./backend/implementations/json.js";
+import { PrettyJsonBackend } from "./backend/implementations/json-pretty.js";
 
-export interface App {
-  client: Client;
-  config: Config;
-  localConfig: GuildConfiguration;
+export class App {
+  constructor(
+    public readonly frontend: Frontend,
+    public readonly backend: Backend,
+    public readonly config: Config
+  ) {}
+
+  get client() {
+    return new Client(this.backend);
+  }
+
+  async loadLocalConfig(force = false) {
+    // The frontend will handle caching for us
+    const localConfigResult = await this.frontend.parseFromFile(
+      this.config.inputPath,
+      force
+    );
+
+    if (!localConfigResult.success) {
+      throw localConfigResult.err;
+    }
+
+    return localConfigResult.data;
+  }
 }
 
 const makeConfig = async (args: Args) => {
@@ -27,7 +51,7 @@ const makeConfig = async (args: Args) => {
     // If not, assemble a config from args
     config = Config.parse({
       token: args.token,
-      discordConfig: args.discordConfig,
+      inputPath: args.input,
       silent: args.silent,
     });
   }
@@ -37,8 +61,8 @@ const makeConfig = async (args: Args) => {
     config.token = args.token;
   }
 
-  if (args.discordConfig) {
-    config.discordConfig = args.discordConfig;
+  if (args.input) {
+    config.inputPath = args.input;
   }
 
   if (args.verbosity) {
@@ -52,16 +76,41 @@ export const wrapCommand = (
   cb: (args: Args, app: App) => void | Promise<void>
 ) => {
   return async (args: Args) => {
-    try {
-      const config = await makeConfig(args);
+    let config;
+    let configErr;
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!global.logger) {
-        global.logger = initLogging(config);
+    try {
+      config = await makeConfig(args);
+    } catch (err) {
+      configErr = err;
+    }
+
+    if (!config) {
+      logger.error(`Failed to parse config options:\n${configErr}`);
+      return;
+    }
+
+    global.logger = initLogging(config);
+
+    try {
+      let frontend;
+      let backend;
+
+      switch (args.frontend) {
+        case "lua":
+          frontend = new LuaFrontend();
+          break;
+        case "json":
+          frontend = new JsonFrontend();
+          break;
+        default:
+          logger.fatal(`Unknown frontend ${args.frontend}`);
+          return;
       }
 
-      const localConfigResult = await luaFrontend.parseFromFile(
-        config.discordConfig
+      const localConfigResult = await frontend.parseFromFile(
+        config.inputPath,
+        false
       );
 
       if (!localConfigResult.success) {
@@ -71,20 +120,28 @@ export const wrapCommand = (
         process.exit(1);
       }
 
-      const localConfig = localConfigResult.data;
+      const { guildId } = localConfigResult.data;
 
-      const client = new Client(
-        new DiscordAPI({
-          id: localConfig.guildId,
-          token: config.token,
-        })
-      );
+      // Would normally use an object / map, but switching is easier due to construction inconvenience
+      switch (args.backend) {
+        case "discord":
+          backend = new DiscordAPI({
+            id: guildId,
+            token: config.token,
+          });
+          break;
+        case "json":
+          backend = new JsonBackend(guildId);
+          break;
+        case "json-pretty":
+          backend = new PrettyJsonBackend(guildId);
+          break;
+        default:
+          logger.fatal(`Unknown backend ${args.backend}`);
+          return;
+      }
 
-      return await cb(args, {
-        client,
-        config,
-        localConfig,
-      });
+      return await cb(args, new App(frontend, backend, config));
     } catch (err) {
       if (err instanceof DiscordAPIError) {
         logger.error(

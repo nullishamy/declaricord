@@ -257,6 +257,13 @@ export const Category = z
     };
   });
 
+export const GuildConfiguration = z.object({
+  guildId: z.string(),
+  globalRoles: z.array(Role),
+  globalChannels: z.array(GuildChannelWithOpts),
+  categories: z.array(Category),
+});
+
 export type TextChannel = z.infer<typeof TextChannel>;
 export type VoiceChannel = z.infer<typeof VoiceChannel>;
 export type TextChannelWithOpts = z.infer<typeof TextChannelWithOpts>;
@@ -266,11 +273,5 @@ export type GuildChannelWithOpts = z.infer<typeof GuildChannelWithOpts>;
 export type RoleOverride = z.infer<typeof RoleOverride>;
 export type Role = z.infer<typeof Role>;
 export type Category = z.infer<typeof Category>;
+export type GuildConfiguration = z.infer<typeof GuildConfiguration>;
 /* eslint-enable @typescript-eslint/no-redeclare */
-
-export interface GuildConfiguration {
-  guildId: string;
-  globalRoles: Role[];
-  globalChannels: GuildChannelWithOpts[];
-  categories: Category[];
-}

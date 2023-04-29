@@ -1,15 +1,5 @@
-import { Category, GuildChannelWithOpts, Override } from "./schema.js";
+import { Category, GuildChannelWithOpts } from "./schema.js";
 
-interface HasId {
-  id: string;
-}
-export function snowflakeSorter(a: HasId, b: HasId): number {
-  return Number(a.id) - Number(b.id);
-}
-
-export function sortOverrides(val: { overrides: Override[] }) {
-  val.overrides.sort(snowflakeSorter);
-}
 export function inheritIntoChild(
   parent: Category,
   child: GuildChannelWithOpts
@@ -36,6 +26,4 @@ export function inheritIntoChild(
       child.overrides.push(override);
     }
   }
-
-  sortOverrides(child);
 }

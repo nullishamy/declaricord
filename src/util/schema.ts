@@ -82,12 +82,20 @@ const TagEmoji = z.object({
   value: z.string().nonempty(),
 });
 
-export const ForumTag = z.object({
-  id: Id,
-  comment: z.string().max(20),
-  mod_only: z.boolean().default(false),
-  emoji: TagEmoji.optional(),
-});
+export const ForumTag = z
+  .object({
+    id: Id,
+    comment: z.string().max(20),
+    mod_only: z.boolean().default(false),
+    emoji: TagEmoji.optional(),
+  })
+  .transform((data) => {
+    // Explicitly set the undefined value
+    return {
+      ...data,
+      emoji: data.emoji ?? undefined,
+    };
+  });
 
 export const ForumChannel = z.object({
   id: Id,

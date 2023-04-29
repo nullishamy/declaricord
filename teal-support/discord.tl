@@ -210,6 +210,7 @@ local record discord
         nsfw: boolean
         tags: {ForumTagMarker}
         topic: string
+        slowmode: number
         thread_slowmode: number
     end
 

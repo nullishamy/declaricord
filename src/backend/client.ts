@@ -11,12 +11,13 @@ export class Client {
   async pull(guildId: string): Promise<GuildConfiguration> {
     const globalChannels = await this.api.fetchGlobalChannels();
     const globalRoles = await this.api.fetchRoles();
+    const categories = await this.api.fetchCategories();
 
     return {
       guildId,
       globalChannels,
       globalRoles,
-      categories: await this.api.fetchCategories(),
+      categories,
     };
   }
 

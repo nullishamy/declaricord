@@ -14,17 +14,14 @@ import {
   OverwriteType,
   Routes,
 } from "discord-api-types/v10";
-import {
-  inheritIntoChild,
-  snowflakeSorter,
-  sortOverrides,
-} from "../../util/permissions.js";
+import { inheritIntoChild } from "../../util/permissions.js";
 import {
   Category,
   GuildChannelWithOpts,
   Override,
   Role,
 } from "../../util/schema.js";
+import { snowflakeSorter } from "../../util/sort.js";
 import { Backend } from "../abstraction.js";
 
 import {
@@ -178,23 +175,28 @@ export class DiscordAPI extends Backend {
                   c.default_thread_rate_limit_per_user ?? 0,
                 slowmode: c.rate_limit_per_user ?? 0,
               },
-              tags: c.available_tags.map((t) => ({
-                id: t.id,
-                comment: t.name,
-                emoji:
-                  t.emoji_id !== null
-                    ? t.emoji_name !== null
-                      ? {
-                          type: "unicode",
-                          value: t.emoji_name,
-                        }
-                      : {
-                          type: "custom",
-                          value: t.emoji_id,
-                        }
-                    : undefined,
-                mod_only: t.moderated,
-              })),
+              tags: c.available_tags.map((t) => {
+                let emoji = undefined;
+
+                if (t.emoji_id) {
+                  emoji = {
+                    type: "custom",
+                    value: t.emoji_id,
+                  } as const;
+                } else if (t.emoji_name) {
+                  emoji = {
+                    type: "unicode",
+                    value: t.emoji_name,
+                  } as const;
+                }
+
+                return {
+                  id: t.id,
+                  comment: t.name,
+                  emoji,
+                  mod_only: t.moderated,
+                };
+              }),
               overrides: this.overwritesToOverrides(
                 c.permission_overwrites ?? []
               ),
@@ -334,24 +336,32 @@ export class DiscordAPI extends Backend {
           defaultThreadSlowmode: val.default_thread_rate_limit_per_user ?? 0,
           slowmode: val.rate_limit_per_user ?? 0,
         },
-        tags: val.available_tags.map((t) => ({
-          id: t.id,
-          comment: t.name,
-          emoji:
-            t.emoji_id !== null
-              ? t.emoji_name !== null
-                ? {
-                    type: "unicode",
-                    value: t.emoji_name,
-                  }
-                : {
-                    type: "custom",
-                    value: t.emoji_id,
-                  }
-              : undefined,
-          mod_only: t.moderated,
-        })),
-        overrides: this.overwritesToOverrides(val.permission_overwrites ?? []),
+        tags: val.available_tags.map((t) => {
+          let emoji = undefined;
+
+          if (t.emoji_id) {
+            emoji = {
+              type: "custom",
+              value: t.emoji_id,
+            } as const;
+          } else if (t.emoji_name) {
+            emoji = {
+              type: "unicode",
+              value: t.emoji_name,
+            } as const;
+          }
+
+          return {
+            id: t.id,
+            comment: t.name,
+            emoji,
+            mod_only: t.moderated,
+          };
+        }),
+        overrides: this.overwritesToOverrides(
+          val.permission_overwrites ?? [],
+          AllUndefinedPerms
+        ),
       });
     };
 
@@ -409,11 +419,7 @@ export class DiscordAPI extends Backend {
       for (const channel of category.channels) {
         inheritIntoChild(category, channel);
       }
-
-      sortOverrides(category);
     }
-
-    categories.sort(snowflakeSorter);
 
     return Promise.resolve(categories);
   }
@@ -482,7 +488,6 @@ export class DiscordAPI extends Backend {
       }),
     };
 
-    finalBody.permission_overwrites.sort(snowflakeSorter);
     const mappedChannel = this.mappedChannels[channel.id];
 
     assert(
@@ -493,6 +498,7 @@ export class DiscordAPI extends Backend {
       "channel was not voice, text, category, or forum"
     );
 
+    finalBody.permission_overwrites.sort(snowflakeSorter);
     mappedChannel.permission_overwrites?.sort(snowflakeSorter);
 
     const diff = deepDiff(
@@ -528,10 +534,6 @@ export class DiscordAPI extends Backend {
 
       if (channel.options.slowmode !== mappedChannel.rate_limit_per_user) {
         shouldPush = true;
-        console.log(
-          channel.options.slowmode,
-          mappedChannel.rate_limit_per_user
-        );
       }
     }
 
@@ -552,31 +554,31 @@ export class DiscordAPI extends Backend {
   async pushCategory(category: Category): Promise<void> {
     const body = {
       name: category.comment,
-      permission_overwrites: category.overrides
-        .map((r) => {
-          let allow = 0n;
-          let deny = 0n;
+      permission_overwrites: category.overrides.map((r) => {
+        let allow = 0n;
+        let deny = 0n;
 
-          for (const [perm, enabled] of Object.entries(r.permissions)) {
-            if (enabled === true) {
-              allow = allow | BigInt(stringToBitField(perm.toUpperCase()));
-            } else if (enabled === false) {
-              deny = deny | BigInt(stringToBitField(perm.toUpperCase()));
-            }
+        for (const [perm, enabled] of Object.entries(r.permissions)) {
+          if (enabled === true) {
+            allow = allow | BigInt(stringToBitField(perm.toUpperCase()));
+          } else if (enabled === false) {
+            deny = deny | BigInt(stringToBitField(perm.toUpperCase()));
           }
+        }
 
-          return {
-            id: r.id,
-            type: r.type === "role" ? 0 : 1,
-            allow: allow.toString(),
-            deny: deny.toString(),
-          };
-        })
-        .sort(snowflakeSorter),
+        return {
+          id: r.id,
+          type: r.type === "role" ? 0 : 1,
+          allow: allow.toString(),
+          deny: deny.toString(),
+        };
+      }),
     };
 
     const mappedChannel = this.mappedChannels[category.id];
     assert(mappedChannel.type === ChannelType.GuildCategory);
+
+    body.permission_overwrites.sort(snowflakeSorter);
     mappedChannel.permission_overwrites?.sort(snowflakeSorter);
 
     const catOverrides = deepDiff(
@@ -641,36 +643,34 @@ export class DiscordAPI extends Backend {
     defaults: Record<string, boolean | undefined> = {}
   ): Override[] {
     this.assertInitialised();
-    return overwrites
-      .map((p) => {
-        const allowed = bitfieldToString(Number(p.allow)).reduce<
-          Record<string, true>
-        >((acc, val) => {
-          acc[val.toLowerCase()] = true;
-          return acc;
-        }, {});
+    return overwrites.map((p) => {
+      const allowed = bitfieldToString(Number(p.allow)).reduce<
+        Record<string, true>
+      >((acc, val) => {
+        acc[val.toLowerCase()] = true;
+        return acc;
+      }, {});
 
-        const denied = bitfieldToString(Number(p.deny)).reduce<
-          Record<string, false>
-        >((acc, val) => {
-          acc[val.toLowerCase()] = false;
-          return acc;
-        }, {});
+      const denied = bitfieldToString(Number(p.deny)).reduce<
+        Record<string, false>
+      >((acc, val) => {
+        acc[val.toLowerCase()] = false;
+        return acc;
+      }, {});
 
-        // TODO: Clean this up
-        return {
-          id: p.id,
-          type:
-            p.type === OverwriteType.Member
-              ? ("user" as const)
-              : ("role" as const),
-          comment:
-            p.type === OverwriteType.Member
-              ? this.mappedUsers[p.id].username
-              : this.mappedRoles[p.id].name,
-          permissions: { ...defaults, ...allowed, ...denied },
-        };
-      })
-      .sort(snowflakeSorter);
+      // TODO: Clean this up
+      return {
+        id: p.id,
+        type:
+          p.type === OverwriteType.Member
+            ? ("user" as const)
+            : ("role" as const),
+        comment:
+          p.type === OverwriteType.Member
+            ? this.mappedUsers[p.id].username
+            : this.mappedRoles[p.id].name,
+        permissions: { ...defaults, ...allowed, ...denied },
+      };
+    });
   }
 }

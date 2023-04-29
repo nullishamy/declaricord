@@ -13,11 +13,7 @@ import { LuaFactory } from "wasmoon";
 import { luaLib } from "../../support/index.js";
 import path from "path";
 import fsp from "fs/promises";
-import {
-  inheritIntoChild,
-  snowflakeSorter,
-  sortOverrides,
-} from "../../util/permissions.js";
+import { inheritIntoChild } from "../../util/permissions.js";
 
 export class LuaFrontend extends Frontend {
   parseFromData(): Promise<ParseResult> {
@@ -113,13 +109,11 @@ export class LuaFrontend extends Frontend {
       for (const channel of category.channels) {
         inheritIntoChild(category, channel);
       }
-
-      sortOverrides(category);
     }
 
     // Apply predicate rules to local config
     // Remote filtering will happen later
-    setup.categories.forEach((category) => {
+    for (const category of setup.categories) {
       category.channels = category.channels.filter((channel) => {
         if (!channel.predicate(channel) || !category.predicate(channel)) {
           logger.info(
@@ -129,20 +123,18 @@ export class LuaFrontend extends Frontend {
         }
         return true;
       });
+    }
 
-      return true;
-    });
-
-    setup.categories.sort(snowflakeSorter);
+    const guildConfig = {
+      guildId: validResult.id,
+      globalChannels: setup.globalChannels,
+      globalRoles: setup.globalRoles,
+      categories: setup.categories,
+    };
 
     const config = {
       success: true,
-      data: {
-        guildId: validResult.id,
-        globalChannels: setup.globalChannels.sort(snowflakeSorter),
-        globalRoles: setup.globalRoles.sort(snowflakeSorter),
-        categories: setup.categories,
-      },
+      data: guildConfig,
     } as const;
 
     this.loadedConfig = config.data;

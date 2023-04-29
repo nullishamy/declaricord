@@ -8,8 +8,8 @@ interface ConfigVisitor {
 }
 
 const LibState = {
-  // `object` because we need to preserve the input format 1-1
-  storedRoles: new Map<string, object>(),
+  // `unknown` because we need to preserve the input format 1-1
+  storedRoles: new Map<string, unknown>(),
   visitors: new Map<ConfigVisitorScope, ConfigVisitor>(),
 };
 

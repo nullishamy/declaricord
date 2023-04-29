@@ -14,7 +14,6 @@ export default {
     await app.client.awaitReady();
 
     const localConfig = await app.loadLocalConfig();
-
     const remoteConfig = await app.client.pull(localConfig.guildId);
 
     sortConfiguration(remoteConfig);

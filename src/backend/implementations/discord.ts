@@ -439,7 +439,8 @@ export class DiscordAPI extends Backend {
       body = {
         name: channel.comment,
         nsfw: channel.options.nsfw,
-        topic: channel.options.topic,
+        // Empty string means "nothing" (undefined, null, non specificity apparently do not communicate this :huh:)
+        topic: channel.options.topic ?? "",
         available_tags: channel.tags.map((t) => ({
           id: t.id,
           name: t.comment,
@@ -455,7 +456,8 @@ export class DiscordAPI extends Backend {
       body = {
         name: channel.comment,
         nsfw: channel.options.nsfw,
-        topic: channel.options.topic,
+        // Empty string means "nothing" (undefined, null, non specificity apparently do not communicate this :huh:)
+        topic: channel.options.topic ?? "",
         slowmode: channel.options.slowmode,
         rate_limit_per_user: channel.options.slowmode,
         default_thread_rate_limit_per_user:

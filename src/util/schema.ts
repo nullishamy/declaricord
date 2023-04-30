@@ -385,6 +385,7 @@ export const Category = z
 
 export const GuildConfiguration = z.object({
   guildId: z.string(),
+  configVersion: z.string(),
   globalRoles: z.array(Role),
   globalChannels: z.array(GuildChannelWithOpts),
   categories: z.array(Category),
@@ -403,4 +404,3 @@ export type Role = z.infer<typeof Role>;
 export type ForumTag = z.infer<typeof ForumTag>;
 export type Category = z.infer<typeof Category>;
 export type GuildConfiguration = z.infer<typeof GuildConfiguration>;
-/* eslint-enable @typescript-eslint/no-redeclare */

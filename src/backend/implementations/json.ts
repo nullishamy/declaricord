@@ -1,3 +1,4 @@
+import { CONFIG_VERSION } from "../../util/constants.js";
 import {
   Category,
   GuildChannelWithOpts,
@@ -13,6 +14,7 @@ export class JsonBackend extends Backend {
     super();
     this.config = {
       guildId,
+      configVersion: CONFIG_VERSION,
       globalRoles: [],
       globalChannels: [],
       categories: [],

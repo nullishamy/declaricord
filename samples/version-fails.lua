@@ -1,27 +1,27 @@
 return {
     id = "1094801227080015882",
-    version = "v1.0.0",
+    version = "v100.0.0",
     ---@param self GuildSetup
     setup = function(self)
         self.global.role {
             id = "1094801227080015882",
-            comment = "@everyone"
+            comment = "a-role",
+
+            administrator = true
         }
 
         self.global.role {
             id = "1094801227080015882",
-            comment = "another-test-role",
+            comment = "@everyone",
 
+            moderate_members = true,
             manage_channels = true
         }
 
-
-        self.global.role {
+        self.global.text {
             id = "1094801227080015882",
-            comment = "another-another-test-role",
-
-            manage_channels = true,
-            manage_messages = true,
+            comment = "test-channel",
+            topic = ""
         }
     end
 }

@@ -3,7 +3,14 @@ import { initLogging } from "../src/util/logger.js";
 import { LuaFrontend } from "../src/frontend/implementations/lua.js";
 
 async function runTest(path: string) {
-  const config = await new LuaFrontend().parseFromFile(`./samples/${path}.lua`);
+  const config = await new LuaFrontend().parseFromFile(
+    `./samples/${path}.lua`,
+    true
+  );
+
+  if (!config.success) {
+    throw config.err;
+  }
 
   expect(config).toMatchSnapshot();
 }
@@ -38,8 +45,18 @@ describe("Integrations", () => {
     return await runTest("categories");
   });
 
+  it("runs categories-with-overrides.lua", async () => {
+    return await runTest("categories-with-overrides");
+  });
+
   it("runs lint-fails.lua", async () => {
     return await runTest("lint-fails");
+  });
+
+  it("runs version-fails.lua", async () => {
+    await expect(() => runTest("version-fails")).rejects.toMatchInlineSnapshot(
+      `[Error: Declared config version v100.0.0 is not compatible with project version v1.0.0, please update]`
+    );
   });
 
   it("runs inheritance-role.lua", async () => {

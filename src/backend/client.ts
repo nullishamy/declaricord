@@ -1,3 +1,4 @@
+import { CONFIG_VERSION } from "../util/constants.js";
 import { GuildConfiguration } from "../util/schema.js";
 import { Backend } from "./abstraction.js";
 
@@ -15,6 +16,7 @@ export class Client {
 
     return {
       guildId,
+      configVersion: CONFIG_VERSION,
       globalChannels,
       globalRoles,
       categories,

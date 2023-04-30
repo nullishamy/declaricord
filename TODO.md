@@ -24,16 +24,15 @@
 [x] Better diff visualisation (object view)
 [x] Investigate CLI printing help when errors are thrown
 [x] Teal support? Teal as a superset?
+[x] Support forums
+[x] Flags for backends/frontends (default lua f/e && json b/e)
+[x] Make more frontend/backends (JSON)
+[x] Lua utils for making configs
+[x] Support user overrides in categories
+[x] Versioning in outputs for compatibility (semver)
 [ ] Tests - [ ] CI - [x] Local
-[ ] Lua utils for making configs
 [ ] Code fix suggestions for diff errors
 [ ] Report invalid / contradictory configs
-[ ] Make more frontend/backends (JSON)
-[ ] Switch frontend based on passed filetype
-[ ] Support forums
-[ ] Cleanup channel filter mess
-[ ] Support user overrides in categories
 [ ] Test backend/frontend implementations for more accurate testing
 [ ] Import/export commands with different formats
-[ ] Flags for backends/frontends (default lua f/e && json b/e)
-[ ] Versioning in outputs for compatibility (semver)
+[ ] JSON frontend fixes (convert to proper format)

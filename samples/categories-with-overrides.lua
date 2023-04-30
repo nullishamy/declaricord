@@ -21,6 +21,12 @@ return {
                     comment = "a-voice-channel"
                 }
             },
+            overrides = {
+                self.override.user {
+                    id = "1094801227080015882",
+                    comment = "a-user-override"
+                }
+            }
         }
 
         self.category {
@@ -37,6 +43,12 @@ return {
                     comment = "a-voice-channel"
                 }
             },
+            overrides = {
+                self.override.role {
+                    id = "1094801227080015882",
+                    comment = "a-role-override"
+                }
+            }
         }
     end
 }

@@ -14,6 +14,8 @@ import { luaLib } from "../../support/index.js";
 import path from "path";
 import fsp from "fs/promises";
 import { inheritIntoChild } from "../../util/permissions.js";
+import { isVersionCompatible } from "../../util/version.js";
+import { CONFIG_VERSION } from "../../util/constants.js";
 
 export class LuaFrontend extends Frontend {
   parseFromData(): Promise<ParseResult> {
@@ -95,9 +97,20 @@ export class LuaFrontend extends Frontend {
     const validResult = z
       .object({
         id: z.string().nonempty(),
+        version: z.string().nonempty(),
         setup: z.function(),
       })
       .parse(result);
+
+    if (!isVersionCompatible(validResult.version)) {
+      // logger.error(`Declared config version ${validResult.version} is not compatible with project version ${CONFIG_VERSION}, please update`)
+      return {
+        success: false,
+        err: new Error(
+          `Declared config version ${validResult.version} is not compatible with project version ${CONFIG_VERSION}, please update`
+        ),
+      };
+    }
 
     const setup = new LuaAPI();
     validResult.setup(setup);
@@ -127,6 +140,7 @@ export class LuaFrontend extends Frontend {
 
     const guildConfig = {
       guildId: validResult.id,
+      configVersion: validResult.version,
       globalChannels: setup.globalChannels,
       globalRoles: setup.globalRoles,
       categories: setup.categories,
